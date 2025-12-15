@@ -1,0 +1,1 @@
+import { db } from '../db';export async function writeSnapshot(snapshotId: string) {  const core = await db.core.get('core');  if (!core) return;  await db.core.put({    ...core,    lastApprovedSnapshotId: snapshotId,    updatedAt: Date.now()  });}

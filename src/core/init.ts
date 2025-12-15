@@ -1,0 +1,1 @@
+import { db } from '../db';export async function initCoreState() {  const existing = await db.core.get('core');  if (!existing) {    await db.core.put({      id: 'core',      schemaVersion: 1,      updatedAt: Date.now()    });  }}

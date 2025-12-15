@@ -1,0 +1,1 @@
+import { db } from '../db';import { ChangeSet } from '../db';export async function applyChangeSet(cs: ChangeSet) {  for (const patch of cs.patches) {    switch (patch.type) {      case 'ADD_MENU_ITEM':        await db.menuItems.put(patch.payload);        break;      default:        console.warn('Unknown patch type:', patch.type);    }  }}
