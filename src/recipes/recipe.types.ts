@@ -1,0 +1,1 @@
+export interface RecipeIngredient {  id: string;  name: string;  amount?: string;}export interface RecipeStep {  order: number;  text: string;}export interface Recipe {  id: string;  title: string;  ingredients: RecipeIngredient[];  steps: RecipeStep[];  pairings?: string[];  tags?: string[];}
