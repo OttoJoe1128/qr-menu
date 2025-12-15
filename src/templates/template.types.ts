@@ -1,0 +1,1 @@
+export type TemplateSection =  | 'heroImage'  | 'description'  | 'ingredients'  | 'steps'  | 'pairings'  | 'chefNotes'  | 'aiRecommendation';export interface Template {  id: string; // example: food_detail_v1  sections: TemplateSection[];  version: number;}

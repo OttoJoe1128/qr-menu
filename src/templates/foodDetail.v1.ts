@@ -1,0 +1,1 @@
+import { Template } from './template.types';export const FoodDetailV1: Template = {  id: 'food_detail_v1',  version: 1,  sections: [    'heroImage',    'description',    'ingredients',    'steps',    'pairings',    'chefNotes',    'aiRecommendation'  ]};
