@@ -1,27 +1,46 @@
+import { useNavigate } from "react-router-dom";
+import breakfastImg from "../../assets/images/breakfast.jpeg";
+import dinnerImg from "../../assets/images/dinner.jpeg";
+import recommendImg from "../../assets/images/recommend.jpeg";
+import "./MainScreen.css";
+
 export default function MainScreen() {
-    return (
-        <div
-              style={{
-                      minHeight: "100vh",
-                              padding: "24px",
-                                      display: "flex",
-                                              flexDirection: "column",
-                                                      justifyContent: "center",
-                                                              gap: "16px",
-                                                                      backgroundColor: "#fafafa",
-                                                                            }}
-                                                                                >
-                                                                                      <h1>Hoş Geldiniz</h1>
+  const navigate = useNavigate();
 
-                                                                                            <p>Bugün ne yemek istersiniz?</p>
+  return (
+    <div className="main-screen">
+      <div
+        className="menu-card"
+        style={{ backgroundImage: `url(${breakfastImg})` }}
+        onClick={() => navigate("/menu/day")}
+      >
+        <div className="overlay">
+          <h2>DAY MENU</h2>
+          <p>Breakfast · Lunch · Dinner</p>
+        </div>
+      </div>
 
-                                                                                                  <button>Menüyü Gör</button>
+      <div
+        className="menu-card"
+        style={{ backgroundImage: `url(${dinnerImg})` }}
+        onClick={() => navigate("/menu/evening")}
+      >
+        <div className="overlay">
+          <h2>EVENING MENU</h2>
+          <p>Dinner · Specials</p>
+        </div>
+      </div>
 
-                                                                                                        <button>Öneri Al</button>
-
-                                                                                                              <button>Garsona Çağır</button>
-                                                                                                                  </div>
-                                                                                                                    );
-                                                                                                                    }
-                                                                                                                    
+      <div
+        className="menu-card"
+        style={{ backgroundImage: `url(${recommendImg})` }}
+        onClick={() => navigate("/bar")}
+      >
+        <div className="overlay">
+          <h2>BAR & CHILL</h2>
+          <p>Drinks · Snacks · Cocktails</p>
+        </div>
+      </div>
+    </div>
+  );
 }
