@@ -1,4 +1,15 @@
-/* ======================================================   ADMIN PUBLIC API   Single controlled entry point   ====================================================== */ export * from "./admin.types";
+/** * Admin module public facade * This is the ONLY entry-point for admin operations. */ export * from "./admin.types";
 export * from "./adminPolicy";
-export * from "./adminActions";
-export * from "./adminQueries";
+export {
+  approveChangeSet,
+  publishChangeSet,
+  rollbackMenu,
+} from "./adminActions";
+export {
+  listChangeSets,
+  getChangeSetById,
+  listSnapshots,
+  getSnapshotById,
+  listMenuItems,
+  listRecipes,
+} from "./adminQueries";

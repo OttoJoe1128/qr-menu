@@ -1,13 +1,9 @@
 import { db } from "../db";
 import { AdminSession } from "./admin.types";
 import { assertPermission } from "./adminPolicy";
-/* ======================================================   ADMIN READ-ONLY QUERIES   Safe for dashboards and monitoring   ====================================================== */ export async function getCoreState(
+/** * READ-ONLY admin queries * No mutation is allowed in this layer. */ export async function listChangeSets(
   session: AdminSession,
 ) {
-  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
-  return db.core.get("core");
-}
-export async function listChangeSets(session: AdminSession) {
   assertPermission(session, "VIEW_ADMIN_DASHBOARD");
   return db.changeSets.orderBy("createdAt").reverse().toArray();
 }
