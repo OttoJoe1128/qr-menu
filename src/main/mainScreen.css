@@ -1,0 +1,141 @@
+.ms {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ms__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.ms__brand {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.ms__utils {
+  display: flex;
+  gap: 10px;
+}
+
+.ms__utilBtn {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: white;
+  cursor: pointer;
+}
+
+.ms__content {
+  padding: 0 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ms__heroGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+.ms__heroCard {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+}
+
+.ms__heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65),
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0)
+  );
+}
+
+.ms__heroText {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  color: white;
+  text-align: left;
+}
+
+.ms__heroTitle {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.ms__heroSubtitle {
+  font-size: 13px;
+  opacity: 0.95;
+}
+
+.ms__categoryStrip {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.ms__categoryRow {
+  display: flex;
+  gap: 10px;
+  min-width: max-content;
+}
+
+.ms__chip {
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ms__cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: white;
+}
+
+.ms__ctaText {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.ms__ctaBtn {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  background: black;
+  color: white;
+}
+
+@media (min-width: 720px) {
+  .ms__heroGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ms__heroCard {
+    height: 220px;
+  }
+}
