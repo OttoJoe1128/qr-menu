@@ -1,1 +1,14 @@
-import type { Recipe } from '../db';import type {  TemplateContract,  TemplateSectionType,  TemplateValidationResult} from '../templates/template.types';/** * validateRecipeAgainstTemplate * - Tarif içerii templatein zorunlu sectionlarn karlyor mu? */export function validateRecipeAgainstTemplate(  recipe: Recipe,  template: TemplateContract): TemplateValidationResult {  const requiredSections = template.sections    .filter(s => s.required)    .map(s => s.type);  const recipeSections: TemplateSectionType[] = [];  if (recipe.ingredients?.length) recipeSections.push('ingredients');  if (recipe.steps?.length) recipeSections.push('steps');  if (recipe.pairings?.length) recipeSections.push('pairings');  if (recipe.notes) recipeSections.push('chefNotes');  const missingSections = requiredSections.filter(    req => !recipeSections.includes(req)  );  return {    valid: missingSections.length === 0,    missingSections: missingSections.length ? missingSections : undefined  };}
+import { Recipe } from "./recipe.types";
+import { TemplateDefinition } from "../templates/template.types";
+import { getRequiredSectionIds } from "../templates/templateRequirements";
+export function validateRecipeAgainstTemplate(
+  recipe: Recipe,
+  template: TemplateDefinition,
+) {
+  const requiredSections = getRequiredSectionIds(template);
+  for (const section of requiredSections) {
+    if (!(section in recipe)) {
+      throw new Error(`Recipe missing required section: ${section}`);
+    }
+  }
+}
