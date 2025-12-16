@@ -1,30 +1,34 @@
+import { useNavigate } from "react-router-dom";
 import "./HomeMenuScreen.css";
 
 export default function HomeMenuScreen() {
+  const navigate = useNavigate();
+
   return (
     <div className="home-menu">
-
-      <div className="hero-grid">
-        <div className="hero-card breakfast">
-          <span>Breakfast</span>
-        </div>
-
-        <div className="hero-card lunch-dinner">
-          <span>Lunch & Dinner</span>
-        </div>
-
-        <div className="hero-card bar">
-          <span>Bar & Drinks</span>
-        </div>
+      <div
+        className="menu-card"
+        style={{ backgroundImage: "url(/assets/images/breakfast.jpeg)" }}
+        onClick={() => navigate("/menu/day")}
+      >
+        <div className="menu-title">Breakfast</div>
       </div>
 
-      <div className="category-strip">
-        <button>Starters</button>
-        <button>Main Courses</button>
-        <button>Desserts</button>
-        <button>Specials</button>
+      <div
+        className="menu-card"
+        style={{ backgroundImage: "url(/assets/images/dinner.jpeg)" }}
+        onClick={() => navigate("/menu/dinner")}
+      >
+        <div className="menu-title">Dinner</div>
       </div>
 
+      <div
+        className="menu-card"
+        style={{ backgroundImage: "url(/assets/images/recommend.jpeg)" }}
+        onClick={() => navigate("/recommend")}
+      >
+        <div className="menu-title">Chef’s Recommendation</div>
+      </div>
     </div>
   );
 }
