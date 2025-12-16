@@ -1,1 +1,3 @@
-import type { TemplateContract } from './template.types';import { FoodDetailV1 } from './foodDetail.v1';/** * TEMPLATE REGISTRY * - Uygulamadaki tm templatelerin tek kayna * - TemplateId tipi buradan türetilir */export const TemplateRegistry: Record<string, TemplateContract> = {  food_detail_v1: FoodDetailV1};
+import { FoodDetailV1 } from "./foodDetail.v1";
+export const TemplateRegistry = { food_detail_v1: FoodDetailV1 };
+export type TemplateKey = keyof typeof TemplateRegistry;

@@ -1,1 +1,9 @@
-/* ======================================================   TEMPLATE SECTION TYPES====================================================== */export type TemplateSectionType =  | 'heroImage'  | 'description'  | 'ingredients'  | 'steps'  | 'pairings'  | 'chefNotes'  | 'aiRecommendationRules';/* ======================================================   TEMPLATE SECTION DEFINITION====================================================== */export interface TemplateSection {  type: TemplateSectionType;  required: boolean;  description?: string;}/* ======================================================   TEMPLATE CONTRACT====================================================== */export interface TemplateContract {  id: string;  label: string;  version: number;  sections: TemplateSection[];}/* ======================================================   VALIDATION RESULT====================================================== */export interface TemplateValidationResult {  valid: boolean;  missingSections?: TemplateSectionType[];  extraSections?: TemplateSectionType[];}
+export interface TemplateSection {
+  id: string;
+  required: boolean;
+}
+export interface TemplateDefinition {
+  id: string;
+  version: number;
+  sections: TemplateSection[];
+}

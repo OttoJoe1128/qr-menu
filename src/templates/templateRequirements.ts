@@ -1,1 +1,6 @@
-import { TemplateSection } from './template.types';export const TemplateSectionRequirements: Record<  TemplateSection,  { required: boolean }> = {  heroImage: { required: false },  description: { required: true },  ingredients: { required: true },  steps: { required: true },  pairings: { required: false },  chefNotes: { required: false },  aiRecommendation: { required: false }};
+import { TemplateDefinition } from "./template.types";
+export function getRequiredSectionIds(template: TemplateDefinition): string[] {
+  return template.sections
+    .filter((section) => section.required)
+    .map((section) => section.id);
+}

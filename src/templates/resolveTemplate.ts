@@ -1,1 +1,9 @@
-import { TemplateRegistry } from './index';import type { TemplateContract } from './template.types';/** * resolveTemplate * - TemplateId ile registryden template döner * - Yoksa hard error verir (sessiz gemez) */export function resolveTemplate(templateId: string): TemplateContract {  const template = TemplateRegistry[templateId];  if (!template) {    throw new Error(`Template not found: ${templateId}`);  }  return template;}
+import { TemplateRegistry, TemplateKey } from "./index";
+import { TemplateDefinition } from "./template.types";
+export function resolveTemplate(templateId: TemplateKey): TemplateDefinition {
+  const template = TemplateRegistry[templateId];
+  if (!template) {
+    throw new Error(`Template not found: ${templateId}`);
+  }
+  return template;
+}
