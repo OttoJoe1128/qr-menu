@@ -1,27 +1,33 @@
 import "fake-indexeddb/auto";
-import { db, MenuItem } from "../db";
+import { webcrypto } from "node:crypto";
+(globalThis as any).crypto = webcrypto;
+import { db } from "../db";
 import { createChangeSet } from "../updates/changeSetService";
 import { applyChangeSet } from "../updates/applyChangeSet";
+import { createApprovedSnapshot } from "../updates/snapshotService";
 async function seed() {
-  console.log(" Seeding database...");
-  const item: MenuItem = {
-    id: "menu-1",
-    nameTR: "Izgara Tavuk",
-    nameEN: "Grilled Chicken",
-    templateId: "food_detail_v1",
-    recipeId: undefined,
-    tags: ["chicken", "grill"],
-    available: true,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
-  const cs = createChangeSet([{ type: "ADD_MENU_ITEM", payload: item }]);
-  cs.status = "approved";
+  console.log("Seeding database...");
+  const cs = createChangeSet([
+    {
+      type: "ADD_MENU_ITEM",
+      payload: {
+        id: "menu-1",
+        nameTR: "Izgara Tavuk",
+        nameEN: "Grilled Chicken",
+        templateId: "food_detail_v1",
+        recipeId: undefined,
+        tags: ["chicken", "grill"],
+        available: true,
+      },
+    },
+  ]);
   await applyChangeSet(cs);
-  const items = await db.menuItems.toArray();
-  console.log(" Menu items:", items);
-  console.log(" Seed completed");
+  const snapshot = await createApprovedSnapshot("seed");
+  console.log(" Snapshot:", snapshot);
+  const menuItems = await db.menuItems.toArray();
+  console.log("Menu items:", menuItems);
+  console.log("Seed completed");
 }
 seed().catch((err) => {
-  console.error(" Seed failed:", err);
+  console.error("Seed failed:", err);
 });

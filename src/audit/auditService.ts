@@ -1,4 +1,4 @@
-/** * Audit service * Central immutable event writer */ import { db } from "../db";
+import { db } from "../db";
 import {
   AuditEvent,
   AuditEventType,
@@ -6,14 +6,14 @@ import {
   AuditActor,
   AuditContext,
 } from "./audit.types";
-export async function writeAuditEvent(params: {
+/** * Centralized audit writer * This is the ONLY place where audit logs are written. * All admin, security, and governance actions must pass here. */ export async function writeAuditEvent(params: {
   type: AuditEventType;
   severity?: AuditSeverity;
   actor: AuditActor;
   context?: AuditContext;
   message: string;
   metadata?: Record<string, unknown>;
-}): Promise<AuditEvent> {
+}): Promise<void> {
   const event: AuditEvent = {
     id: globalThis.crypto.randomUUID(),
     type: params.type,
@@ -24,6 +24,7 @@ export async function writeAuditEvent(params: {
     metadata: params.metadata,
     createdAt: Date.now(),
   };
-  await db.table<AuditEvent>("auditEvents").add(event);
-  return event;
+  await db.transaction("rw", db.auditEvents, async () => {
+    await db.auditEvents.put(event);
+  });
 }

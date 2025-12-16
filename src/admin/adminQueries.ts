@@ -1,31 +1,39 @@
-/** * Admin read-only queries * No mutations allowed in this module */ import {
-  AdminRole,
-  AdminPermission,
-  AdminSession,
-} from "./admin.types";
-/* ======================================================   ROLE  PERMISSION MAP   ====================================================== */ const ROLE_PERMISSIONS: Record<
-  AdminRole,
-  AdminPermission[]
-> = {
-  OWNER: [
-    "APPROVE_CHANGESET",
-    "PUBLISH_CHANGESET",
-    "ROLLBACK",
-    "VIEW_AUDIT",
-    "MANAGE_ADMINS",
-  ],
-  ADMIN: ["APPROVE_CHANGESET", "PUBLISH_CHANGESET", "VIEW_AUDIT"],
-  REVIEWER: ["APPROVE_CHANGESET"],
-};
-/* ======================================================   QUERIES   ====================================================== */ export function resolvePermissionsForRole(
-  role: AdminRole,
-): AdminPermission[] {
-  return ROLE_PERMISSIONS[role] ?? [];
+import { db } from "../db";
+import { AdminSession } from "./admin.types";
+import { assertPermission } from "./adminPolicy";
+/* ======================================================   ADMIN READ-ONLY QUERIES   Safe for dashboards and monitoring   ====================================================== */ export async function getCoreState(
+  session: AdminSession,
+) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.core.get("core");
 }
-export function buildAdminSession(
-  adminId: string,
-  role: AdminRole,
-): AdminSession {
-  const permissions = resolvePermissionsForRole(role);
-  return { adminId, role, permissions, issuedAt: Date.now() };
+export async function listChangeSets(session: AdminSession) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.changeSets.orderBy("createdAt").reverse().toArray();
+}
+export async function getChangeSetById(
+  session: AdminSession,
+  changeSetId: string,
+) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.changeSets.get(changeSetId);
+}
+export async function listSnapshots(session: AdminSession) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.snapshots.orderBy("menuVersion").reverse().toArray();
+}
+export async function getSnapshotById(
+  session: AdminSession,
+  snapshotId: string,
+) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.snapshots.get(snapshotId);
+}
+export async function listMenuItems(session: AdminSession) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.menuItems.orderBy("updatedAt").reverse().toArray();
+}
+export async function listRecipes(session: AdminSession) {
+  assertPermission(session, "VIEW_ADMIN_DASHBOARD");
+  return db.recipes.orderBy("updatedAt").reverse().toArray();
 }

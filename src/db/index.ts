@@ -1,14 +1,15 @@
 import Dexie, { Table } from "dexie";
 import { TemplateRegistry } from "../templates";
-/* ======================================================   CORE STATE (Hive: coreBox)   ====================================================== */ export interface CoreState {
+import { AuditEvent } from "../audit/audit.types";
+/* ======================================================   CORE STATE====================================================== */ export interface CoreState {
   id: "core";
   schemaVersion: number;
   lastApprovedSnapshotId?: string;
   updatedAt: number;
 }
-/* ======================================================   TEMPLATE SAFETY   ====================================================== */ export type TemplateId =
+/* ======================================================   TEMPLATE SAFETY====================================================== */ export type TemplateId =
   keyof typeof TemplateRegistry;
-/* ======================================================   MENU   ====================================================== */ export interface MenuItem {
+/* ======================================================   MENU====================================================== */ export interface MenuItem {
   id: string;
   nameTR: string;
   nameEN?: string;
@@ -19,7 +20,7 @@ import { TemplateRegistry } from "../templates";
   createdAt: number;
   updatedAt: number;
 }
-/* ======================================================   RECIPE   ====================================================== */ export interface Recipe {
+/* ======================================================   RECIPE====================================================== */ export interface Recipe {
   id: string;
   ingredients: string[];
   steps: string[];
@@ -28,7 +29,7 @@ import { TemplateRegistry } from "../templates";
   createdAt: number;
   updatedAt: number;
 }
-/* ======================================================   CHANGESET   ====================================================== */ export type ChangeSetStatus =
+/* ======================================================   CHANGESET====================================================== */ export type ChangeSetStatus =
   "draft" | "review" | "approved" | "published";
 export interface ChangeSet {
   id: string;
@@ -39,19 +40,20 @@ export interface ChangeSet {
   approvedAt?: number;
   approvedBy?: string;
 }
-/* ======================================================   SNAPSHOT   ====================================================== */ export interface Snapshot {
+/* ======================================================   SNAPSHOT====================================================== */ export interface Snapshot {
   id: string;
   contentHash: string;
   menuVersion: number;
   createdAt: number;
   approvedBy?: string;
 }
-/* ======================================================   DATABASE   ====================================================== */ class QRMenuDB extends Dexie {
+/* ======================================================   DATABASE====================================================== */ class QRMenuDB extends Dexie {
   core!: Table<CoreState, "core">;
   menuItems!: Table<MenuItem, string>;
   recipes!: Table<Recipe, string>;
   changeSets!: Table<ChangeSet, string>;
   snapshots!: Table<Snapshot, string>;
+  auditEvents!: Table<AuditEvent, string>;
   constructor() {
     super("qr-menu-db");
     this.version(1).stores({
@@ -60,6 +62,7 @@ export interface ChangeSet {
       recipes: "id, updatedAt",
       changeSets: "id, status, createdAt",
       snapshots: "id, menuVersion, createdAt",
+      auditEvents: "id, type, severity, createdAt",
     });
   }
 }
