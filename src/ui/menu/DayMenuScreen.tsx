@@ -1,14 +1,28 @@
 import "./DayMenuScreen.css";
 
+const categories = [
+  "Eggs",
+  "Bakery",
+  "Hot Dishes",
+  "Cold Plates",
+  "Drinks",
+];
+
 export default function DayMenuScreen() {
   return (
     <div className="day-menu">
-      <h1>Day Menu</h1>
+      <h1 className="day-title">Breakfast Menu</h1>
 
-      <div className="day-options">
-        <div className="day-card">Breakfast</div>
-        <div className="day-card">Lunch</div>
-        <div className="day-card">Dinner</div>
+      <div className="category-list">
+        {categories.map((cat) => (
+          <button key={cat} className="category-item">
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <div className="menu-placeholder">
+        Select a category to view items
       </div>
     </div>
   );

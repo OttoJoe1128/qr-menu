@@ -1,25 +1,31 @@
 .day-menu {
-  padding: 24px;
+  padding: 16px;
 }
 
-.day-menu h1 {
-  text-align: center;
-  margin-bottom: 24px;
+.day-title {
+  font-size: 24px;
+  margin-bottom: 12px;
 }
 
-.day-options {
+.category-list {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 12px;
 }
 
-.day-card {
-  height: 80px;
-  border-radius: 14px;
-  background: #111;
-  color: white;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.category-item {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: none;
+  background: #f2f2f2;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menu-placeholder {
+  margin-top: 40px;
+  color: #777;
+  font-size: 14px;
 }
