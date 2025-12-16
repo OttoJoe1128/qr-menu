@@ -1,45 +1,37 @@
 import { useNavigate } from "react-router-dom";
-import breakfastImg from "../../assets/images/breakfast.jpeg";
-import dinnerImg from "../../assets/images/dinner.jpeg";
-import recommendImg from "../../assets/images/recommend.jpeg";
 import "./MainScreen.css";
+
+import breakfastImg from "../assets/breakfast.jpg";
+import lunchImg from "../assets/lunch.jpg";
+import dinnerImg from "../assets/dinner.jpg";
 
 export default function MainScreen() {
   const navigate = useNavigate();
 
   return (
-    <div className="main-screen">
+    <div className="main-grid">
       <div
         className="menu-card"
         style={{ backgroundImage: `url(${breakfastImg})` }}
-        onClick={() => navigate("/menu/day")}
+        onClick={() => navigate("/menu?type=breakfast")}
       >
-        <div className="overlay">
-          <h2>DAY MENU</h2>
-          <p>Breakfast · Lunch · Dinner</p>
-        </div>
+        <div className="menu-title">Breakfast</div>
       </div>
 
       <div
         className="menu-card"
+        style={{ backgroundImage: `url(${lunchImg})` }}
+        onClick={() => navigate("/menu?type=lunch")}
+      >
+        <div className="menu-title">Lunch</div>
+      </div>
+
+      <div
+        className="menu-card wide"
         style={{ backgroundImage: `url(${dinnerImg})` }}
-        onClick={() => navigate("/menu/evening")}
+        onClick={() => navigate("/menu?type=dinner")}
       >
-        <div className="overlay">
-          <h2>EVENING MENU</h2>
-          <p>Dinner · Specials</p>
-        </div>
-      </div>
-
-      <div
-        className="menu-card"
-        style={{ backgroundImage: `url(${recommendImg})` }}
-        onClick={() => navigate("/bar")}
-      >
-        <div className="overlay">
-          <h2>BAR & CHILL</h2>
-          <p>Drinks · Snacks · Cocktails</p>
-        </div>
+        <div className="menu-title">Dinner & Bar</div>
       </div>
     </div>
   );

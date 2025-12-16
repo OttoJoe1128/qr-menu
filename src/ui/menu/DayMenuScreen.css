@@ -1,0 +1,25 @@
+.day-menu {
+  padding: 24px;
+}
+
+.day-menu h1 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.day-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.day-card {
+  height: 80px;
+  border-radius: 14px;
+  background: #111;
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
