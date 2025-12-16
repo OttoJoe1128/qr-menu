@@ -13,4 +13,4 @@ export default function AppRouter() {
     </BrowserRouter>
   );
 }
-cd ~/projects/qr-menu
+
