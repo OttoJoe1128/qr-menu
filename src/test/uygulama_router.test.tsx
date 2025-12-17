@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 import AppRouter from "../ui/router/AppRouter";
 
@@ -20,6 +21,16 @@ describe("Uygulama Router", () => {
     window.history.pushState({}, "", "/recommend");
     render(<AppRouter />);
     expect(screen.getByText("Recommend (mock)")).toBeInTheDocument();
+  });
+
+  test("ana ekrandaki kart tıklanınca /menu rotasına gider", async () => {
+    window.history.pushState({}, "", "/");
+    const kullanici = userEvent.setup();
+    render(<AppRouter />);
+    await kullanici.click(screen.getByText("Breakfast"));
+    expect(window.location.pathname).toBe("/menu");
+    expect(window.location.search).toContain("type=breakfast");
+    expect(screen.getByText("Menu (mock)")).toBeInTheDocument();
   });
 });
 
