@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import breakfastImg from "../assets/breakfast.jpg";
-import lunchImg from "../assets/lunch.jpg";
-import dinnerImg from "../assets/dinner.jpg";
+import breakfastImg from "../assets/images/breakfast.jpeg";
+import lunchImg from "../assets/images/recommend.jpeg";
+import dinnerImg from "../assets/images/dinner.jpeg";
 
 const HERO = [
   {
