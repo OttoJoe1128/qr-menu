@@ -1,6 +1,6 @@
 # QR Menu — UI / UX Yönerge İndeksi
 
-Bu dosya **kısa bir giriş** ve “tek doğru referansa” yönlendirme sağlar. UI kararlarında asıl kaynaklar aşağıdaki dokümanlardır.
+Bu dosya **kısa bir giriş** ve "tek doğru referansa" yönlendirme sağlar. UI kararlarında asıl kaynaklar aşağıdaki dokümanlardır.
 
 ## Referans dokümanlar
 - **Detaylı UI / UX master plan**: `src/design/ui-plan.md`
@@ -9,7 +9,7 @@ Bu dosya **kısa bir giriş** ve “tek doğru referansa” yönlendirme sağlar
 ## Temel ilkeler (özet)
 - Minimal ama soğuk değil; modern ama steril değil.
 - Scroll minimum; dokunma hedefleri büyük olmalı.
-- Her ekranda geri dönüş mümkün olmalı, “dead-end” olmamalı.
+- Her ekranda geri dönüş mümkün olmalı, "dead-end" olmamalı.
 - Offline-first düşünülmeli (veri tarayıcıda saklanır).
 
 ## Kapsam

@@ -25,15 +25,15 @@ Hedef:
 
 ## 3. Ana Ekran (Giriş)
 
-Ana ekran **3 ana blok + 1 sabit alt bar**’dan oluşur.
+Ana ekran **3 ana blok + 1 sabit alt bar**'dan oluşur.
 
-### 3.1 Blok 1 – Kahraman Alan / “Bugün Senin İçin”
+### 3.1 Blok 1 – Kahraman Alan / "Bugün Senin İçin"
 
-- Ekranın %40’ı
+- Ekranın %40'ı
 - Büyük görsel (gerçek yemek fotoğrafı)
 - Ürün adı
 - Kısa vurucu metin (opsiyonel)
-- Eylem çağrısı: “Detaya bak”
+- Eylem çağrısı: "Detaya bak"
 
 Kaynak:
 - MenuItem.available = true
@@ -42,13 +42,13 @@ Kaynak:
 
 Amaç:
 - Kullanıcıyı anında bağlamak
-- “Buradayım” hissi vermek
+- "Buradayım" hissi vermek
 
 ---
 
 ### 3.2 Blok 2 – Menü Kategorileri
 
-- Ekranın %30’u
+- Ekranın %30'u
 - Izgara yapı (2x2 veya 3x2)
 - Maksimum 6 kategori
 
@@ -73,10 +73,10 @@ Davranış:
 
 ### 3.3 Blok 3 – Keşfet / Önerilenler
 
-- Ekranın %20’si
+- Ekranın %20'si
 - Yatay mini kartlar (3–4 adet)
 - Küçük görsel + ürün adı
-- “Bununla iyi gider” etiketi
+- "Bununla iyi gider" etiketi
 
 Kaynak:
 - Recipe.pairings
@@ -87,7 +87,7 @@ Kaynak:
 
 ### 3.4 Sabit Alt Bar
 
-- Ekranın %10’u
+- Ekranın %10'u
 - Her ekranda sabit
 
 Butonlar:
@@ -109,9 +109,9 @@ Amaç:
 İçerik:
 - Ürün görseli
 - Ürün açıklaması
-- Reçete (ingredients)
-- Yapılış
-- Püf noktaları
+- Reçete (malzemeler)
+- Yapılış (adımlar)
+- Püf noktaları (notlar)
 - Bununla iyi gider önerileri
 
 ---

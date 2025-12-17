@@ -28,7 +28,7 @@ müşteriye yansıyan yüzüdür.
 - Restoranı temsil eden büyük görsel
 - Hafif hareket (parallax / fade)
 - Logo veya mekan adı
-- “Menüyü Keşfet” ana butonu
+- "Menüyü Keşfet" ana butonu
 
 ---
 
@@ -82,7 +82,7 @@ Bir ürün seçildiğinde:
 - ML destekli öneriler
 - Kullanıcı tercihi öğrenme
 - Ops / TableSession entegrasyonu
-- Admin snapshot’larına bağlı içerik stabilitesi
+- Admin snapshot'larına bağlı içerik stabilitesi
 
 ---
 
@@ -95,5 +95,5 @@ Bir ürün seçildiğinde:
 ---
 
 ## 8. SONUÇ
-Bu dosya, MainScreen.tsx’in anayasasıdır.
+Bu dosya, MainScreen.tsx'in anayasasıdır.
 Bu plana aykırı UI yazılmaz.
