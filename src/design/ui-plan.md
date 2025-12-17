@@ -23,17 +23,17 @@ Hedef:
 
 ---
 
-## 3. Ana Ekran (Home)
+## 3. Ana Ekran (Giriş)
 
 Ana ekran **3 ana blok + 1 sabit alt bar**’dan oluşur.
 
-### 3.1 Blok 1 – Hero / “Bugün Senin İçin”
+### 3.1 Blok 1 – Kahraman Alan / “Bugün Senin İçin”
 
 - Ekranın %40’ı
 - Büyük görsel (gerçek yemek fotoğrafı)
 - Ürün adı
 - Kısa vurucu metin (opsiyonel)
-- CTA: “Detaya bak”
+- Eylem çağrısı: “Detaya bak”
 
 Kaynak:
 - MenuItem.available = true
@@ -49,7 +49,7 @@ Amaç:
 ### 3.2 Blok 2 – Menü Kategorileri
 
 - Ekranın %30’u
-- Grid yapı (2x2 veya 3x2)
+- Izgara yapı (2x2 veya 3x2)
 - Maksimum 6 kategori
 
 Örnek kategoriler:
@@ -67,7 +67,7 @@ Teknik bağ:
 
 Davranış:
 - Tıklanınca kategori liste ekranı açılır
-- Ana ekran state’i bozulmaz
+- Ana ekran durumu bozulmaz
 
 ---
 

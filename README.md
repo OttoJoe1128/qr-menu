@@ -1,20 +1,20 @@
 # QR Menu
 
-QR tabanl? **men�** ve **operasyon (masa oturumu)** y�netimi i�in Vite + React tabanl?, **offline-first** yakla�?m?yla ilerleyen bir uygulama. Kal?c? veri katman? taray?c? taraf?nda **IndexedDB** (Dexie) ile tutulur.
+QR tabanlı **menü** ve **operasyon (masa oturumu)** yönetimi için Vite + React tabanlı, **offline-first** yaklaşımıyla ilerleyen bir uygulama. Kalıcı veri katmanı tarayıcı tarafında **IndexedDB** (Dexie) ile tutulur.
 
 ## Teknoloji
 - **UI**: React + Vite
 - **Depolama**: Dexie (IndexedDB)
-- **Alanlar (domain)**: Men�, Re�ete, Template, De?i�iklik Seti (ChangeSet), Snapshot, Ops (TableSession), Audit
+- **Alanlar (domain)**: Menü, Reçete, Template, Değişiklik Seti (ChangeSet), Snapshot, Ops (TableSession), Audit
 
 ## Kurulum
-Node.js kurulu olmal?d?r.
+Node.js kurulu olmalıdır.
 
 ```bash
 npm install
 ```
 
-## �al?�t?rma komutlar?
+## Çalıştırma komutları
 ```bash
 npm run dev
 ```
@@ -27,19 +27,19 @@ npm run build
 npm run preview
 ```
 
-## Dok�manlar (y�nergeler)
-- **UI / UX master plan (k?sa)**: `docs/ui-plan.md`
-- **UI / UX master plan (detayl?)**: `src/design/ui-plan.md`
-- **Main Screen anayasas?**: `src/ui/main/MAIN_UI_PLAN.md`
+## Dokümanlar (yönergeler)
+- **UI / UX master plan (kısa)**: `docs/ui-plan.md`
+- **UI / UX master plan (detaylı)**: `src/design/ui-plan.md`
+- **Main Screen anayasası**: `src/ui/main/MAIN_UI_PLAN.md`
 
-## Proje yap?s? (�zet)
+## Proje yapısı (özet)
 - `src/ui/`: Ekranlar (TSX + CSS) ve router
-- `src/db/`: Dexie �emas? ve temel tipler
-- `src/templates/`: Template registry ve ��z�mleme
+- `src/db/`: Dexie şeması ve temel tipler
+- `src/templates/`: Template registry ve çözümleme
 - `src/updates/`: ChangeSet uygulama + snapshot servisleri
 - `src/ops/`: Masa oturumu (TableSession) servisleri
-- `src/audit/`: Audit event yaz?m? (tek giri� noktas?)
+- `src/audit/`: Audit event yazımı (tek giriş noktası)
 
 ## Notlar
-- Veriler taray?c?da saklan?r (IndexedDB). Geli�tirme s?ras?nda veriyi ?s?f?rlamak? i�in taray?c? uygulama verilerini temizlemeniz gerekebilir.
-- UI geli�tirmesinde referans dok�manlar yukar?daki dosyalard?r; UI kararlar? bu planlarla tutarl? ilerlemelidir.
+- Veriler tarayıcıda saklanır (IndexedDB). Geliştirme sırasında veriyi "sıfırlamak" için tarayıcı uygulama verilerini temizlemeniz gerekebilir.
+- UI geliştirmesinde referans dokümanlar yukarıdaki dosyalardır; UI kararları bu planlarla tutarlı ilerlemelidir.
