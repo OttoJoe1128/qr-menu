@@ -1,0 +1,2 @@
+export { writeAuditEvent } from "./auditService";
+
