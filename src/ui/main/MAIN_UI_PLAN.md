@@ -1,4 +1,4 @@
-# MAIN UI PLAN — QR MENU APPLICATION
+# ANA EKRAN UI PLANI — QR MENU
 
 ## 1. AMAÇ
 Bu ekran, restoran içindeki bir müşterinin:
@@ -24,7 +24,7 @@ müşteriye yansıyan yüzüdür.
 
 ## 3. ANA EKRAN BİLEŞENLERİ
 
-### 3.1 HERO AREA (ÜST ALAN)
+### 3.1 KAHRAMAN ALAN (ÜST ALAN)
 - Restoranı temsil eden büyük görsel
 - Hafif hareket (parallax / fade)
 - Logo veya mekan adı
@@ -36,9 +36,9 @@ müşteriye yansıyan yüzüdür.
 Her biri büyük dokunmatik kart:
 
 - 🍽 Menü
-- ⭐ Önerilenler (ML için placeholder)
+- ⭐ Önerilenler (ML için geçici alan)
 - ℹ️ Mekan Hakkında
-- 🧾 Sipariş Akışı (ileride aktif)
+- 🧾 Sipariş Akışı (ileride aktif olacak)
 
 Kartlar:
 - Görsel ağırlıklı
@@ -48,7 +48,7 @@ Kartlar:
 
 ---
 
-## 4. MENÜ AKIŞI (CORE)
+## 4. MENÜ AKIŞI (ÇEKİRDEK)
 
 ### 4.1 Menü Liste Ekranı
 - Kategoriler (Et, Tavuk, Vegan, İçecek vb.)
@@ -62,10 +62,10 @@ Bir ürün seçildiğinde:
 - Ürün görseli
 - Ürün adı
 - Kısa açıklama
-- Reçete (ingredients)
-- Yapılış usulü (steps)
-- Püf noktaları (notes)
-- Eşleşmeler (pairings)
+- Reçete (malzemeler)
+- Yapılış usulü (adımlar)
+- Püf noktaları (notlar)
+- Eşleşmeler (uyum önerileri)
 
 ---
 

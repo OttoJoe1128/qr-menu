@@ -1,4 +1,4 @@
-# QR Menu – UI / UX Master Plan
+# QR Menu — UI / UX Ana Plan
 
 ## 1. Amaç
 
@@ -63,7 +63,7 @@ Amaç:
 Teknik bağ:
 - tags
 - TemplateId
-- Hard-coded değil
+- Sabit kodlu değil
 
 Davranış:
 - Tıklanınca kategori liste ekranı açılır
