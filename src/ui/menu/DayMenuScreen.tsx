@@ -1,17 +1,17 @@
 import "./DayMenuScreen.css";
 
 const categories = [
-  "Eggs",
-  "Bakery",
-  "Hot Dishes",
-  "Cold Plates",
-  "Drinks",
+  "Yumurta",
+  "Fırın",
+  "Sıcak",
+  "Soğuk",
+  "İçecek",
 ];
 
 export default function DayMenuScreen() {
   return (
     <div className="day-menu">
-      <h1 className="day-title">Breakfast Menu</h1>
+      <h1 className="day-title">Kahvaltı Menüsü</h1>
 
       <div className="category-list">
         {categories.map((cat) => (
@@ -22,7 +22,7 @@ export default function DayMenuScreen() {
       </div>
 
       <div className="menu-placeholder">
-        Select a category to view items
+        Ürünleri görmek için bir kategori seçin
       </div>
     </div>
   );

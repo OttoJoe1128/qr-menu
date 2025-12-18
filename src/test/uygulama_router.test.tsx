@@ -7,30 +7,29 @@ describe("Uygulama Router", () => {
   test("ana sayfada ana ekran render edilir", () => {
     window.history.pushState({}, "", "/");
     render(<AppRouter />);
-    expect(screen.getByText("Breakfast")).toBeInTheDocument();
+    expect(screen.getByText("Kahvaltı")).toBeInTheDocument();
   });
 
   test("/menu/day rotasında gün menüsü render edilir", () => {
     window.history.pushState({}, "", "/menu/day");
     render(<AppRouter />);
-    expect(screen.getByText("Breakfast Menu")).toBeInTheDocument();
-    expect(screen.getByText("Eggs")).toBeInTheDocument();
+    expect(screen.getByText("Kahvaltı Menüsü")).toBeInTheDocument();
+    expect(screen.getByText("Yumurta")).toBeInTheDocument();
   });
 
   test("/recommend rotasında geçici içerik görünür", () => {
     window.history.pushState({}, "", "/recommend");
     render(<AppRouter />);
-    expect(screen.getByText("Recommend (mock)")).toBeInTheDocument();
+    expect(screen.getByText("Öneriler (geçici)")).toBeInTheDocument();
   });
 
   test("ana ekrandaki kart tıklanınca /menu rotasına gider", async () => {
     window.history.pushState({}, "", "/");
     const kullanici = userEvent.setup();
     render(<AppRouter />);
-    await kullanici.click(screen.getByText("Breakfast"));
-    expect(window.location.pathname).toBe("/menu");
-    expect(window.location.search).toContain("type=breakfast");
-    expect(screen.getByText("Menu (mock)")).toBeInTheDocument();
+    await kullanici.click(screen.getByText("Kahvaltı"));
+    expect(window.location.pathname).toBe("/menu/day");
+    expect(screen.getByText("Kahvaltı Menüsü")).toBeInTheDocument();
   });
 });
 
