@@ -1,53 +1,45 @@
-<<<<<<< HEAD
-# Qr-menu
+# QR Menu
 
+QR tabanlı **menü** ve **operasyon (masa oturumu)** yönetimi için Vite + React tabanlı, **offline-first** yaklaşımıyla ilerleyen bir uygulama. Kalıcı veri katmanı tarayıcı tarafında **IndexedDB** (Dexie) ile tutulur.
 
+## Teknoloji
+- **UI**: React + Vite
+- **Depolama**: Dexie (IndexedDB)
+- **Alanlar (domain)**: Menü, Reçete, Template, Değişiklik Seti (ChangeSet), Snapshot, Ops (TableSession), Audit
 
-## Getting started
+## Kurulum
+Node.js kurulu olmalıdır.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/OttoJoe1128/qr-menu.git
-git branch -M main
-git push -uf origin main
+```bash
+npm install
 ```
 
-## Integrate with your tools
+## Çalıştırma komutları
+```bash
+npm run dev
+```
 
-* [Set up project integrations](https://gitlab.com/OttoJoe1128/qr-menu/-/settings/integrations)
+```bash
+npm run build
+```
 
-## Collaborate with your team
+```bash
+npm run preview
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Dokümanlar (yönergeler)
+- **UI / UX master plan (kısa)**: `docs/ui-plan.md`
+- **UI / UX master plan (detaylı)**: `src/design/ui-plan.md`
+- **Main Screen anayasası**: `src/ui/main/MAIN_UI_PLAN.md`
 
-## Test and Deploy
+## Proje yapısı (özet)
+- `src/ui/`: Ekranlar (TSX + CSS) ve router
+- `src/db/`: Dexie şeması ve temel tipler
+- `src/templates/`: Template registry ve çözümleme
+- `src/updates/`: ChangeSet uygulama + snapshot servisleri
+- `src/ops/`: Masa oturumu (TableSession) servisleri
+- `src/audit/`: Audit event yazımı (tek giriş noktası)
 
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-# QR MenuQR tabanl men� ve operasyon y�netim sistemi.- Vite + React- UserLAnd (Android)- GitLab + SSH
+## Notlar
+- Veriler tarayıcıda saklanır (IndexedDB). Geliştirme sırasında veriyi "sıfırlamak" için tarayıcı uygulama verilerini temizlemeniz gerekebilir.
+- UI geliştirmesinde referans dokümanlar yukarıdaki dosyalardır; UI kararları bu planlarla tutarlı ilerlemelidir.

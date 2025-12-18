@@ -76,7 +76,7 @@ export interface Snapshot {
    DATABASE
 ====================================================== */
 class QRMenuDB extends Dexie {
-  core!: Table<CoreState, "core">;
+  coreTable!: Table<CoreState, "core">;
   menuItems!: Table<MenuItem, string>;
   recipes!: Table<Recipe, string>;
   changeSets!: Table<ChangeSet, string>;
@@ -101,6 +101,8 @@ class QRMenuDB extends Dexie {
     this.version(2).stores({
       tableSessions: "id, tableNumber, status, openedAt",
     });
+
+    this.coreTable = this.table("core");
   }
 }
 

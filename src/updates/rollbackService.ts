@@ -1,6 +1,6 @@
 import { db } from "../db";
 /** * Roll back menu + recipes to the last approved snapshot. * This is a destructive operation and must be admin-only. */ export async function rollbackToLastApprovedSnapshot(): Promise<void> {
-  const core = await db.core.get("core");
+  const core = await db.coreTable.get("core");
   if (!core?.lastApprovedSnapshotId) {
     throw new Error("No approved snapshot found to rollback to");
   }

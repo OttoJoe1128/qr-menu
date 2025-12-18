@@ -32,18 +32,18 @@ export async function createApprovedSnapshot(
     createdAt: Date.now(),
     approvedBy,
   };
-  await db.transaction("rw", db.snapshots, db.core, async () => {
+  await db.transaction("rw", db.snapshots, db.coreTable, async () => {
     await db.snapshots.put(snapshot);
-    const core = await db.core.get("core");
+    const core = await db.coreTable.get("core");
     if (!core) {
-      await db.core.put({
+      await db.coreTable.put({
         id: "core",
         schemaVersion: 1,
         lastApprovedSnapshotId: snapshot.id,
         updatedAt: Date.now(),
       });
     } else {
-      await db.core.put({
+      await db.coreTable.put({
         ...core,
         lastApprovedSnapshotId: snapshot.id,
         updatedAt: Date.now(),

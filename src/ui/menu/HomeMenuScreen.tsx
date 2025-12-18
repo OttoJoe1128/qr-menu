@@ -11,7 +11,7 @@ export default function HomeMenuScreen() {
         style={{ backgroundImage: "url(/assets/images/breakfast.jpeg)" }}
         onClick={() => navigate("/menu/day")}
       >
-        <div className="menu-title">Breakfast</div>
+        <div className="menu-title">Kahvaltı</div>
       </div>
 
       <div
@@ -19,7 +19,7 @@ export default function HomeMenuScreen() {
         style={{ backgroundImage: "url(/assets/images/dinner.jpeg)" }}
         onClick={() => navigate("/menu/dinner")}
       >
-        <div className="menu-title">Dinner</div>
+        <div className="menu-title">Akşam</div>
       </div>
 
       <div
@@ -27,7 +27,7 @@ export default function HomeMenuScreen() {
         style={{ backgroundImage: "url(/assets/images/recommend.jpeg)" }}
         onClick={() => navigate("/recommend")}
       >
-        <div className="menu-title">Chef’s Recommendation</div>
+        <div className="menu-title">Şefin Önerisi</div>
       </div>
     </div>
   );
