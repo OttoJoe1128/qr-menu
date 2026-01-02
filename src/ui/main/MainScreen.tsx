@@ -30,7 +30,7 @@ export default function MainScreen() {
   return (
     <div className="main-grid">
       {isAdminKisayoluGorunur ? (
-        <button className="admin-fab" onClick={() => navigate("/admin")}>
+        <button className="admin-fab" onClick={() => navigate("/?sayfa=admin")}>
           Admin Paneli
         </button>
       ) : null}
