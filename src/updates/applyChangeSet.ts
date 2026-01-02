@@ -1,4 +1,4 @@
-import { db, ChangeSet, MenuItem } from "../db";
+import { db, ChangeSet, MenuItem, Recipe } from "../db";
 import { resolveTemplate } from "../templates/resolveTemplate";
 import { validateRecipeAgainstTemplate } from "../recipes/validateRecipe";
 export async function applyChangeSet(cs: ChangeSet) {
@@ -7,6 +7,19 @@ export async function applyChangeSet(cs: ChangeSet) {
   }
   for (const patch of cs.patches) {
     switch (patch.type) {
+      case "ADD_RECIPE": {
+        const recipe: Recipe = patch.payload;
+        const mevcut: Recipe | undefined = await db.recipes.get(recipe.id);
+        if (mevcut) {
+          throw new Error(`Recipe already exists (id): ${recipe.id}`);
+        }
+        await db.recipes.put({
+          ...recipe,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+        break;
+      }
       case "ADD_MENU_ITEM": {
         const item: MenuItem = patch.payload;
         const mevcutId: MenuItem | undefined = await db.menuItems.get(item.id);

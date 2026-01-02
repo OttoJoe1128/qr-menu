@@ -1,8 +1,12 @@
 import "./DayMenuScreen.css";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { db, MenuItem } from "../../db";
-import { buildMenuKategoriOzetleri, resolveSeciliKategori } from "./menuKategoriUtils";
+import { db, MenuCategory, MenuItem, MenuRating } from "../../db";
+import {
+  buildMenuKategoriOzetleri,
+  buildMenuKategoriOzetleriFromKategoriler,
+  resolveSeciliKategori,
+} from "./menuKategoriUtils";
 
 type MenuUrunSiralamaModu = "guncellenme_azalan" | "isim_artan";
 
@@ -10,6 +14,8 @@ export default function DayMenuScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri, setAramaParametreleri] = useSearchParams();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [kategoriler, setKategoriler] = useState<MenuCategory[]>([]);
+  const [puanlar, setPuanlar] = useState<MenuRating[]>([]);
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
   const [seciliKategori, setSeciliKategori] = useState<string | null>(null);
   const [urunSiralamaModu, setUrunSiralamaModu] = useState<MenuUrunSiralamaModu>("guncellenme_azalan");
@@ -18,11 +24,17 @@ export default function DayMenuScreen() {
     let isIptalEdildi: boolean = false;
     async function yukleMenuItems(): Promise<void> {
       try {
-        const items: MenuItem[] = await db.menuItems.toArray();
+        const [items, cats, ratings]: [MenuItem[], MenuCategory[], MenuRating[]] = await Promise.all([
+          db.menuItems.toArray(),
+          db.categories.toArray(),
+          db.ratings.toArray(),
+        ]);
         if (isIptalEdildi) {
           return;
         }
         setMenuItems(items);
+        setKategoriler(cats);
+        setPuanlar(ratings);
       } finally {
         if (isIptalEdildi) {
           return;
@@ -36,15 +48,20 @@ export default function DayMenuScreen() {
     };
   }, []);
 
-  const kullanilabilirEtiketler = useMemo((): string[] => {
-    const ozetler = buildMenuKategoriOzetleri(menuItems);
-    return ozetler
-      .map((o) => o.etiket)
-      .sort((a, b) => a.localeCompare(b));
-  }, [menuItems]);
+  const kategoriOzetleri = useMemo(() => {
+    const ozetler =
+      kategoriler.length > 0
+        ? buildMenuKategoriOzetleriFromKategoriler(menuItems, kategoriler)
+        : buildMenuKategoriOzetleri(menuItems);
+    return ozetler;
+  }, [menuItems, kategoriler]);
+
+  const kullanilabilirAnahtarlar = useMemo((): string[] => {
+    return kategoriOzetleri.map((o) => o.anahtar);
+  }, [kategoriOzetleri]);
 
   useEffect((): void => {
-    if (kullanilabilirEtiketler.length === 0) {
+    if (kullanilabilirAnahtarlar.length === 0) {
       setSeciliKategori(null);
       return;
     }
@@ -53,21 +70,75 @@ export default function DayMenuScreen() {
     const resolved: string | null = resolveSeciliKategori({
       aramaParametresiKategori,
       kaydedilmisKategori,
-      kullanilabilirEtiketler,
+      kullanilabilirEtiketler: kullanilabilirAnahtarlar,
     });
     setSeciliKategori(resolved);
     if (resolved && aramaParametresiKategori !== resolved) {
       setAramaParametreleri({ category: resolved }, { replace: true });
     }
-  }, [kullanilabilirEtiketler, aramaParametreleri, setAramaParametreleri]);
+  }, [kullanilabilirAnahtarlar, aramaParametreleri, setAramaParametreleri]);
+
+  const seciliKategoriId = useMemo((): string | null => {
+    if (!seciliKategori) {
+      return null;
+    }
+    const kategori: MenuCategory | undefined = kategoriler.find((k) => k.slug === seciliKategori);
+    return kategori ? kategori.id : null;
+  }, [seciliKategori, kategoriler]);
+
+  const puanOrtalamaMap = useMemo((): Map<string, number> => {
+    const map: Map<string, { toplam: number; adet: number }> = new Map();
+    for (const p of puanlar) {
+      const mevcut = map.get(p.menuItemId) ?? { toplam: 0, adet: 0 };
+      map.set(p.menuItemId, { toplam: mevcut.toplam + p.score, adet: mevcut.adet + 1 });
+    }
+    const sonuc: Map<string, number> = new Map();
+    for (const [menuItemId, v] of map.entries()) {
+      sonuc.set(menuItemId, v.adet > 0 ? v.toplam / v.adet : 0);
+    }
+    return sonuc;
+  }, [puanlar]);
 
   const filtrelenmisUrunler = useMemo((): MenuItem[] => {
-    const filtreli: MenuItem[] = menuItems.filter((i) => i.available && (!!seciliKategori ? i.tags.includes(seciliKategori) : true));
+    const filtreli: MenuItem[] = menuItems.filter((i) => {
+      if (!i.available) {
+        return false;
+      }
+      if (!seciliKategori) {
+        return true;
+      }
+      if (kategoriler.length > 0) {
+        return !!seciliKategoriId && i.categoryId === seciliKategoriId;
+      }
+      return i.tags.includes(seciliKategori);
+    });
     if (urunSiralamaModu === "isim_artan") {
       return [...filtreli].sort((a, b) => a.nameTR.localeCompare(b.nameTR));
     }
     return [...filtreli].sort((a, b) => b.updatedAt - a.updatedAt);
-  }, [menuItems, seciliKategori, urunSiralamaModu]);
+  }, [menuItems, seciliKategori, urunSiralamaModu, kategoriler, seciliKategoriId]);
+
+  async function kaydetPuan(menuItemId: string, score: number): Promise<void> {
+    const tableSessionId: string | null = localStorage.getItem("qr_menu_table_session_id");
+    const mevcut: MenuRating | undefined = await db.ratings
+      .where("menuItemId")
+      .equals(menuItemId)
+      .and((r: MenuRating) => (tableSessionId ? r.tableSessionId === tableSessionId : !r.tableSessionId))
+      .first();
+    if (mevcut) {
+      await db.ratings.put({ ...mevcut, score, createdAt: Date.now() });
+    } else {
+      await db.ratings.put({
+        id: globalThis.crypto.randomUUID(),
+        menuItemId,
+        tableSessionId: tableSessionId ?? undefined,
+        score,
+        createdAt: Date.now(),
+      });
+    }
+    const ratings: MenuRating[] = await db.ratings.toArray();
+    setPuanlar(ratings);
+  }
 
   return (
     <div className="day-menu">
@@ -79,19 +150,19 @@ export default function DayMenuScreen() {
       </div>
 
       <div className="category-list">
-        {kullanilabilirEtiketler.map((cat) => {
-          const isSecili: boolean = seciliKategori === cat;
+        {kategoriOzetleri.map((ozet) => {
+          const isSecili: boolean = seciliKategori === ozet.anahtar;
           return (
             <button
-              key={cat}
+              key={ozet.anahtar}
               className={`category-item ${isSecili ? "category-item--active" : ""}`}
               onClick={() => {
-                localStorage.setItem("qr_menu_day_category", cat);
-                setSeciliKategori(cat);
-                setAramaParametreleri({ category: cat });
+                localStorage.setItem("qr_menu_day_category", ozet.anahtar);
+                setSeciliKategori(ozet.anahtar);
+                setAramaParametreleri({ category: ozet.anahtar });
               }}
             >
-              {cat}
+              {ozet.baslik}
             </button>
           );
         })}
@@ -121,8 +192,24 @@ export default function DayMenuScreen() {
         <div className="day-list" role="list">
           {filtrelenmisUrunler.map((urun) => (
             <div key={urun.id} className="day-row" role="listitem">
-              <div className="day-row-title">{urun.nameTR}</div>
+              <div className="day-row-top">
+                <div className="day-row-title">{urun.nameTR}</div>
+                <div className="day-row-rating">
+                  <span className="day-row-ratingValue">
+                    {(puanOrtalamaMap.get(urun.id) ?? 0).toFixed(1)}
+                  </span>
+                  <span className="day-row-ratingText">/ 5</span>
+                </div>
+              </div>
               <div className="day-row-tags">{urun.tags.join(", ")}</div>
+              <div className="day-row-rate">
+                <span className="day-row-rateLabel">Puan ver:</span>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button key={s} className="day-row-rateBtn" onClick={() => void kaydetPuan(urun.id, s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
           ))}
         </div>

@@ -27,8 +27,24 @@ export interface MenuItem {
   nameEN?: string;
   templateId: TemplateId;
   recipeId?: string;
+  categoryId?: string;
   tags: string[];
   available: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/* ======================================================
+   CATEGORIES
+====================================================== */
+export interface MenuCategory {
+  id: string;
+  nameTR: string;
+  nameEN?: string;
+  slug: string;
+  imageUrl?: string;
+  sortOrder: number;
+  active: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -38,12 +54,26 @@ export interface MenuItem {
 ====================================================== */
 export interface Recipe {
   id: string;
+  heroImage: string;
+  description: string;
   ingredients: string[];
   steps: string[];
   pairings?: string[];
+  chefNotes?: string;
   notes?: string;
   createdAt: number;
   updatedAt: number;
+}
+
+/* ======================================================
+   RATINGS
+====================================================== */
+export interface MenuRating {
+  id: string;
+  menuItemId: string;
+  tableSessionId?: string;
+  score: number;
+  createdAt: number;
 }
 
 /* ======================================================
@@ -78,7 +108,9 @@ export interface Snapshot {
 class QRMenuDB extends Dexie {
   core!: Table<CoreState, "core">;
   menuItems!: Table<MenuItem, string>;
+  categories!: Table<MenuCategory, string>;
   recipes!: Table<Recipe, string>;
+  ratings!: Table<MenuRating, string>;
   changeSets!: Table<ChangeSet, string>;
   snapshots!: Table<Snapshot, string>;
   auditEvents!: Table<AuditEvent, string>;
@@ -100,6 +132,13 @@ class QRMenuDB extends Dexie {
     // v2 — OPS / Table Sessions
     this.version(2).stores({
       tableSessions: "id, tableNumber, status, openedAt",
+    });
+
+    // v3 — Categories + Ratings + menuItem category index
+    this.version(3).stores({
+      menuItems: "id, templateId, categoryId, available, updatedAt",
+      categories: "id, slug, active, sortOrder, updatedAt",
+      ratings: "id, menuItemId, tableSessionId, createdAt",
     });
   }
 }

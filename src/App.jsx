@@ -12,8 +12,9 @@ export default function App() {
       if (!tableNumber) {
         return;
       }
-      await openTableSession(tableNumber);
+      const session = await openTableSession(tableNumber);
       localStorage.setItem("qr_menu_table_number", tableNumber);
+      localStorage.setItem("qr_menu_table_session_id", session.id);
     }
     void init();
   }, []);

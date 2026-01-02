@@ -1,9 +1,10 @@
-import { MenuItem } from "../../db";
+import { MenuCategory, MenuItem } from "../../db";
 
 export type MenuKategoriSiralamaModu = "alfabetik_artan" | "alfabetik_azalan" | "sayim_azalan";
 
 export interface MenuKategoriOzeti {
-  etiket: string;
+  anahtar: string;
+  baslik: string;
   urunSayisi: number;
 }
 
@@ -24,11 +25,39 @@ export function buildMenuKategoriOzetleri(items: MenuItem[]): MenuKategoriOzeti[
       map.set(tag, mevcut + 1);
     }
   }
-  const ozetler: MenuKategoriOzeti[] = Array.from(map.entries()).map(([etiket, urunSayisi]) => ({
-    etiket,
+  const ozetler: MenuKategoriOzeti[] = Array.from(map.entries()).map(([anahtar, urunSayisi]) => ({
+    anahtar,
+    baslik: anahtar,
     urunSayisi,
   }));
   return ozetler;
+}
+
+export function buildMenuKategoriOzetleriFromKategoriler(
+  items: MenuItem[],
+  kategoriler: MenuCategory[],
+): MenuKategoriOzeti[] {
+  const aktifKategoriler: MenuCategory[] = kategoriler
+    .filter((k) => k.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.nameTR.localeCompare(b.nameTR));
+  const sayimMap: Map<string, number> = new Map<string, number>();
+  for (const item of items) {
+    if (!item.available) {
+      continue;
+    }
+    const kategoriId: string | undefined = item.categoryId;
+    if (!kategoriId) {
+      continue;
+    }
+    const mevcut: number = sayimMap.get(kategoriId) ?? 0;
+    sayimMap.set(kategoriId, mevcut + 1);
+  }
+  const ozetler: MenuKategoriOzeti[] = aktifKategoriler.map((k) => ({
+    anahtar: k.slug,
+    baslik: k.nameTR,
+    urunSayisi: sayimMap.get(k.id) ?? 0,
+  }));
+  return ozetler.filter((o) => o.urunSayisi > 0);
 }
 
 export function sortMenuKategoriOzetleri(
@@ -37,12 +66,12 @@ export function sortMenuKategoriOzetleri(
 ): MenuKategoriOzeti[] {
   const kopya: MenuKategoriOzeti[] = [...ozetler];
   if (siralamaModu === "sayim_azalan") {
-    return kopya.sort((a, b) => b.urunSayisi - a.urunSayisi || a.etiket.localeCompare(b.etiket));
+    return kopya.sort((a, b) => b.urunSayisi - a.urunSayisi || a.baslik.localeCompare(b.baslik));
   }
   if (siralamaModu === "alfabetik_azalan") {
-    return kopya.sort((a, b) => b.etiket.localeCompare(a.etiket));
+    return kopya.sort((a, b) => b.baslik.localeCompare(a.baslik));
   }
-  return kopya.sort((a, b) => a.etiket.localeCompare(b.etiket));
+  return kopya.sort((a, b) => a.baslik.localeCompare(b.baslik));
 }
 
 export function resolveSeciliKategori(input: SeciliKategoriGirdisi): string | null {

@@ -48,8 +48,8 @@ describe("menuKategoriUtils", () => {
     const actualOzetler = buildMenuKategoriOzetleri(inputMenuItems);
     const actualSiralilar = sortMenuKategoriOzetleri(actualOzetler, "sayim_azalan");
     expect(actualSiralilar).toEqual([
-      { etiket: "tavuk", urunSayisi: 2 },
-      { etiket: "izgara", urunSayisi: 1 },
+      { anahtar: "tavuk", baslik: "tavuk", urunSayisi: 2 },
+      { anahtar: "izgara", baslik: "izgara", urunSayisi: 1 },
     ]);
   });
 

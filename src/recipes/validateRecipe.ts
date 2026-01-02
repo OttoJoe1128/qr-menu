@@ -7,6 +7,9 @@ export function validateRecipeAgainstTemplate(
 ) {
   const requiredSections = getRequiredSectionIds(template);
   for (const section of requiredSections) {
+    if (section === "chefNotes" && (recipe.chefNotes || recipe.notes)) {
+      continue;
+    }
     if (!(section in recipe)) {
       throw new Error(`Recipe missing required section: ${section}`);
     }
