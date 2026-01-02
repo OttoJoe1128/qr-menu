@@ -129,6 +129,12 @@
   margin-bottom: 12px;
 }
 
+.admin__inlineBtn {
+  padding: 6px 10px;
+  border-radius: 10px;
+  margin-bottom: 0;
+}
+
 .admin__hint {
   margin-top: 10px;
   font-size: 13px;

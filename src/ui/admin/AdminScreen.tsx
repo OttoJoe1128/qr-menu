@@ -77,15 +77,19 @@ export default function AdminScreen() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [kategoriler, setKategoriler] = useState<MenuCategory[]>([]);
   const [puanlar, setPuanlar] = useState<MenuRating[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [hataMesaji, setHataMesaji] = useState<string | null>(null);
   const [basariMesaji, setBasariMesaji] = useState<string | null>(null);
 
+  const [duzenlenenKategoriId, setDuzenlenenKategoriId] = useState<string | null>(null);
   const [kategoriAdiTR, setKategoriAdiTR] = useState<string>("");
   const [kategoriAdiEN, setKategoriAdiEN] = useState<string>("");
   const [kategoriGorselUrl, setKategoriGorselUrl] = useState<string>("");
   const [kategoriSira, setKategoriSira] = useState<number>(1);
   const [isKategoriAktif, setIsKategoriAktif] = useState<boolean>(true);
 
+  const [duzenlenenMenuItemId, setDuzenlenenMenuItemId] = useState<string | null>(null);
+  const [duzenlenenRecipeId, setDuzenlenenRecipeId] = useState<string | null>(null);
   const [seciliKategoriId, setSeciliKategoriId] = useState<string>("");
   const [urunAdiTR, setUrunAdiTR] = useState<string>("");
   const [urunAdiEN, setUrunAdiEN] = useState<string>("");
@@ -105,20 +109,47 @@ export default function AdminScreen() {
 
   async function yukleAdminVeri(): Promise<void> {
     setIsYukleniyor(true);
-    const [items, cats, ratings]: [MenuItem[], MenuCategory[], MenuRating[]] = await Promise.all([
+    const [items, cats, ratings, rcp]: [MenuItem[], MenuCategory[], MenuRating[], Recipe[]] = await Promise.all([
       db.menuItems.orderBy("updatedAt").reverse().toArray(),
       db.categories.orderBy("sortOrder").toArray(),
       db.ratings.toArray(),
+      db.recipes.orderBy("updatedAt").reverse().toArray(),
     ]);
     setMenuItems(items);
     setKategoriler(cats);
     setPuanlar(ratings);
+    setRecipes(rcp);
     setIsYukleniyor(false);
   }
 
   useEffect(() => {
     void yukleAdminVeri();
   }, []);
+
+  function temizleKategoriForm(): void {
+    setDuzenlenenKategoriId(null);
+    setKategoriAdiTR("");
+    setKategoriAdiEN("");
+    setKategoriGorselUrl("");
+    setKategoriSira(1);
+    setIsKategoriAktif(true);
+  }
+
+  function temizleUrunForm(): void {
+    setDuzenlenenMenuItemId(null);
+    setDuzenlenenRecipeId(null);
+    setSeciliKategoriId("");
+    setUrunAdiTR("");
+    setUrunAdiEN("");
+    setEtiketlerMetin("");
+    setHeroImageUrl("");
+    setAciklamaMetin("");
+    setMalzemelerMetin("");
+    setAdimlarMetin("");
+    setEslesmelerMetin("");
+    setSefNotlariMetin("");
+    setIsUrunMevcut(true);
+  }
 
   async function kaydetKategori(): Promise<void> {
     setHataMesaji(null);
@@ -133,14 +164,9 @@ export default function AdminScreen() {
       setHataMesaji("Kategori slug üretilemedi. Lütfen farklı bir kategori adı giriniz.");
       return;
     }
-    const mevcutSlug: MenuCategory | undefined = await db.categories.where("slug").equals(slug).first();
-    if (mevcutSlug) {
-      setHataMesaji(`Bu kategori daha önce eklenmiş: ${mevcutSlug.nameTR} (${mevcutSlug.slug})`);
-      return;
-    }
     const simdi: number = Date.now();
     const kategori: MenuCategory = {
-      id: globalThis.crypto.randomUUID(),
+      id: duzenlenenKategoriId ?? globalThis.crypto.randomUUID(),
       nameTR,
       nameEN: kategoriAdiEN.trim().length > 0 ? kategoriAdiEN.trim() : undefined,
       slug,
@@ -150,18 +176,38 @@ export default function AdminScreen() {
       createdAt: simdi,
       updatedAt: simdi,
     };
-    await db.categories.put(kategori);
-    setBasariMesaji("Kategori kaydedildi.");
-    setKategoriAdiTR("");
-    setKategoriAdiEN("");
-    setKategoriGorselUrl("");
-    setKategoriSira(1);
-    setIsKategoriAktif(true);
+    const cs: ChangeSet = {
+      id: globalThis.crypto.randomUUID(),
+      status: "approved",
+      patches: [{ type: duzenlenenKategoriId ? "UPDATE_CATEGORY" : "ADD_CATEGORY", payload: kategori }],
+      createdAt: simdi,
+      approvedAt: simdi,
+      approvedBy: adminSession.adminId,
+      baseSnapshotId: undefined,
+    };
+    await db.changeSets.put(cs);
+    await publishChangeSet(adminSession, cs.id);
+    setBasariMesaji(duzenlenenKategoriId ? "Kategori güncellendi ve yayınlandı." : "Kategori kaydedildi ve yayınlandı.");
+    temizleKategoriForm();
     await yukleAdminVeri();
     setSekme("urun_ekle");
     if (!seciliKategoriId) {
       setSeciliKategoriId(kategori.id);
     }
+  }
+
+  async function baslatKategoriDuzenle(kategoriId: string): Promise<void> {
+    const kategori: MenuCategory | undefined = kategoriler.find((k) => k.id === kategoriId);
+    if (!kategori) {
+      return;
+    }
+    setDuzenlenenKategoriId(kategori.id);
+    setKategoriAdiTR(kategori.nameTR);
+    setKategoriAdiEN(kategori.nameEN ?? "");
+    setKategoriGorselUrl(kategori.imageUrl ?? "");
+    setKategoriSira(kategori.sortOrder);
+    setIsKategoriAktif(kategori.active);
+    setSekme("kategori");
   }
 
   async function kaydetMenuItem(): Promise<void> {
@@ -197,10 +243,10 @@ export default function AdminScreen() {
       return;
     }
     const tags: string[] = parseEtiketler(etiketlerMetin);
-    const id: string = globalThis.crypto.randomUUID();
+    const id: string = duzenlenenMenuItemId ?? globalThis.crypto.randomUUID();
     const templateId: TemplateId = "food_detail_v1" as TemplateId;
     const simdi: number = Date.now();
-    const recipeId: string = globalThis.crypto.randomUUID();
+    const recipeId: string = duzenlenenRecipeId ?? globalThis.crypto.randomUUID();
     const recipe: Recipe = {
       id: recipeId,
       heroImage,
@@ -228,10 +274,15 @@ export default function AdminScreen() {
     const cs: ChangeSet = {
       id: globalThis.crypto.randomUUID(),
       status: "approved",
-      patches: [
-        { type: "ADD_RECIPE", payload: recipe },
-        { type: "ADD_MENU_ITEM", payload: menuItem },
-      ],
+      patches: duzenlenenMenuItemId
+        ? [
+            { type: "UPDATE_RECIPE", payload: recipe },
+            { type: "UPDATE_MENU_ITEM", payload: menuItem },
+          ]
+        : [
+            { type: "ADD_RECIPE", payload: recipe },
+            { type: "ADD_MENU_ITEM", payload: menuItem },
+          ],
       createdAt: simdi,
       approvedAt: simdi,
       approvedBy: adminSession.adminId,
@@ -239,19 +290,57 @@ export default function AdminScreen() {
     };
     await db.changeSets.put(cs);
     await publishChangeSet(adminSession, cs.id);
-    setBasariMesaji("Ürün kaydedildi ve yayınlandı.");
-    setUrunAdiTR("");
-    setUrunAdiEN("");
-    setEtiketlerMetin("");
-    setHeroImageUrl("");
-    setAciklamaMetin("");
-    setMalzemelerMetin("");
-    setAdimlarMetin("");
-    setEslesmelerMetin("");
-    setSefNotlariMetin("");
-    setIsUrunMevcut(true);
+    setBasariMesaji(duzenlenenMenuItemId ? "Ürün güncellendi ve yayınlandı." : "Ürün kaydedildi ve yayınlandı.");
+    temizleUrunForm();
     await yukleAdminVeri();
     setSekme("urun_liste");
+  }
+
+  async function baslatUrunDuzenle(menuItemId: string): Promise<void> {
+    const item: MenuItem | undefined = menuItems.find((m) => m.id === menuItemId);
+    if (!item) {
+      return;
+    }
+    const rcp: Recipe | undefined = item.recipeId ? recipes.find((r) => r.id === item.recipeId) : undefined;
+    setDuzenlenenMenuItemId(item.id);
+    setDuzenlenenRecipeId(item.recipeId ?? null);
+    setSeciliKategoriId(item.categoryId ?? "");
+    setUrunAdiTR(item.nameTR);
+    setUrunAdiEN(item.nameEN ?? "");
+    setEtiketlerMetin(item.tags.join(", "));
+    setIsUrunMevcut(item.available);
+    setHeroImageUrl(rcp?.heroImage ?? "");
+    setAciklamaMetin(rcp?.description ?? "");
+    setMalzemelerMetin(rcp ? rcp.ingredients.join("\n") : "");
+    setAdimlarMetin(rcp ? rcp.steps.join("\n") : "");
+    setEslesmelerMetin(rcp?.pairings ? rcp.pairings.join("\n") : "");
+    setSefNotlariMetin(rcp?.chefNotes ?? "");
+    setSekme("urun_ekle");
+  }
+
+  async function degistirUrunAktiflik(menuItemId: string, yeniDurum: boolean): Promise<void> {
+    setHataMesaji(null);
+    setBasariMesaji(null);
+    const item: MenuItem | undefined = await db.menuItems.get(menuItemId);
+    if (!item) {
+      setHataMesaji("Ürün bulunamadı.");
+      return;
+    }
+    const simdi: number = Date.now();
+    const guncel: MenuItem = { ...item, available: yeniDurum, updatedAt: simdi };
+    const cs: ChangeSet = {
+      id: globalThis.crypto.randomUUID(),
+      status: "approved",
+      patches: [{ type: "UPDATE_MENU_ITEM", payload: guncel }],
+      createdAt: simdi,
+      approvedAt: simdi,
+      approvedBy: adminSession.adminId,
+      baseSnapshotId: undefined,
+    };
+    await db.changeSets.put(cs);
+    await publishChangeSet(adminSession, cs.id);
+    setBasariMesaji("Ürün durumu güncellendi.");
+    await yukleAdminVeri();
   }
 
   async function uretQrKod(): Promise<void> {
@@ -324,6 +413,9 @@ export default function AdminScreen() {
 
       {sekme === "kategori" ? (
         <section className="admin__card">
+          <button className="admin__secondary" onClick={() => temizleKategoriForm()}>
+            Yeni Kategori
+          </button>
           <label className="admin__field">
             <span className="admin__label">Kategori adı (TR)</span>
             <input className="admin__input" value={kategoriAdiTR} onChange={(e) => setKategoriAdiTR(e.target.value)} placeholder="Örn: Ana Yemek" />
@@ -347,10 +439,10 @@ export default function AdminScreen() {
             <span>Kategori aktif</span>
           </label>
           <button className="admin__primary" onClick={() => void kaydetKategori()}>
-            Kategoriyi Kaydet
+            {duzenlenenKategoriId ? "Kategoriyi Güncelle ve Yayınla" : "Kategoriyi Kaydet ve Yayınla"}
           </button>
           <div className="admin__hint">
-            Not: Kategori eklemeden önce “daha önce eklenmiş mi?” kontrolü slug üzerinden yapılır.
+            Not: Kategori kaydı ChangeSet üzerinden yayınlanır ve snapshot üretir.
           </div>
           <div className="admin__hint">Mevcut kategoriler:</div>
           {isYukleniyor ? (
@@ -367,6 +459,9 @@ export default function AdminScreen() {
                       {k.active ? "AKTİF" : "PASİF"}
                     </span>
                     <span className="admin__tags">slug: {k.slug} • sıra: {k.sortOrder}</span>
+                    <button className="admin__secondary admin__inlineBtn" onClick={() => void baslatKategoriDuzenle(k.id)}>
+                      Düzenle
+                    </button>
                   </div>
                 </div>
               ))}
@@ -377,6 +472,9 @@ export default function AdminScreen() {
 
       {sekme === "urun_ekle" ? (
         <section className="admin__card">
+          <button className="admin__secondary" onClick={() => temizleUrunForm()}>
+            Yeni Ürün
+          </button>
           <label className="admin__field">
             <span className="admin__label">Kategori</span>
             <select className="admin__input" value={seciliKategoriId} onChange={(e) => setSeciliKategoriId(e.target.value)}>
@@ -431,10 +529,10 @@ export default function AdminScreen() {
             <span>Ürün menüde görünsün (available)</span>
           </label>
           <button className="admin__primary" onClick={() => void kaydetMenuItem()}>
-            Ürünü Kaydet ve Yayınla
+            {duzenlenenMenuItemId ? "Ürünü Güncelle ve Yayınla" : "Ürünü Kaydet ve Yayınla"}
           </button>
           <div className="admin__hint">
-            Not: Ürün eklemeden önce “daha önce eklenmiş mi?” kontrolü DB’de id ve nameTR+templateId üzerinden yapılır.
+            Not: Ürün kaydı ChangeSet üzerinden yayınlanır; tekrar ekleme kontrolü DB katmanında yapılır.
           </div>
         </section>
       ) : null}
@@ -461,6 +559,15 @@ export default function AdminScreen() {
                       kategori: {m.categoryId ? (kategoriMap.get(m.categoryId)?.nameTR ?? "Bilinmiyor") : "Yok"} •{" "}
                       etiket: {m.tags.join(", ")}
                     </span>
+                    <button className="admin__secondary admin__inlineBtn" onClick={() => void baslatUrunDuzenle(m.id)}>
+                      Düzenle
+                    </button>
+                    <button
+                      className="admin__secondary admin__inlineBtn"
+                      onClick={() => void degistirUrunAktiflik(m.id, !m.available)}
+                    >
+                      {m.available ? "Pasife Al" : "Aktif Et"}
+                    </button>
                   </div>
                 </div>
               ))}
