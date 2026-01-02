@@ -7,6 +7,32 @@ import "./AdminScreen.css";
 
 type AdminTab = "kategori" | "urun_ekle" | "urun_liste" | "puanlar" | "qr_uret";
 
+function createUuidV4(): string {
+  const bytes: Uint8Array = new Uint8Array(16);
+  if (!globalThis.crypto || !globalThis.crypto.getRandomValues) {
+    throw new Error("Crypto API eksik: getRandomValues");
+  }
+  globalThis.crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex: string[] = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0"));
+  return `${hex[0]}${hex[1]}${hex[2]}${hex[3]}-${hex[4]}${hex[5]}-${hex[6]}${hex[7]}-${hex[8]}${hex[9]}-${hex[10]}${hex[11]}${hex[12]}${hex[13]}${hex[14]}${hex[15]}`;
+}
+
+function createKayitId(): string {
+  if (globalThis.crypto && "randomUUID" in globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+  return createUuidV4();
+}
+
+function resolveHataMesaji(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return "Beklenmeyen bir hata oluştu.";
+}
+
 function createAdminSession(): AdminSession {
   const issuedAt: number = Date.now();
   return {
@@ -154,45 +180,54 @@ export default function AdminScreen() {
   async function kaydetKategori(): Promise<void> {
     setHataMesaji(null);
     setBasariMesaji(null);
-    const nameTR: string = kategoriAdiTR.trim();
-    if (nameTR.length === 0) {
-      setHataMesaji("Kategori adı (TR) zorunludur.");
-      return;
-    }
-    const slug: string = createSlug(nameTR);
-    if (slug.length === 0) {
-      setHataMesaji("Kategori slug üretilemedi. Lütfen farklı bir kategori adı giriniz.");
-      return;
-    }
-    const simdi: number = Date.now();
-    const kategori: MenuCategory = {
-      id: duzenlenenKategoriId ?? globalThis.crypto.randomUUID(),
-      nameTR,
-      nameEN: kategoriAdiEN.trim().length > 0 ? kategoriAdiEN.trim() : undefined,
-      slug,
-      imageUrl: kategoriGorselUrl.trim().length > 0 ? kategoriGorselUrl.trim() : undefined,
-      sortOrder: Number.isFinite(kategoriSira) ? kategoriSira : 1,
-      active: isKategoriAktif,
-      createdAt: simdi,
-      updatedAt: simdi,
-    };
-    const cs: ChangeSet = {
-      id: globalThis.crypto.randomUUID(),
-      status: "approved",
-      patches: [{ type: duzenlenenKategoriId ? "UPDATE_CATEGORY" : "ADD_CATEGORY", payload: kategori }],
-      createdAt: simdi,
-      approvedAt: simdi,
-      approvedBy: adminSession.adminId,
-      baseSnapshotId: undefined,
-    };
-    await db.changeSets.put(cs);
-    await publishChangeSet(adminSession, cs.id);
-    setBasariMesaji(duzenlenenKategoriId ? "Kategori güncellendi ve yayınlandı." : "Kategori kaydedildi ve yayınlandı.");
-    temizleKategoriForm();
-    await yukleAdminVeri();
-    setSekme("urun_ekle");
-    if (!seciliKategoriId) {
-      setSeciliKategoriId(kategori.id);
+    try {
+      const nameTR: string = kategoriAdiTR.trim();
+      if (nameTR.length === 0) {
+        setHataMesaji("Kategori adı (TR) zorunludur.");
+        return;
+      }
+      const slug: string = createSlug(nameTR);
+      if (slug.length === 0) {
+        setHataMesaji("Kategori slug üretilemedi. Lütfen farklı bir kategori adı giriniz.");
+        return;
+      }
+      const mevcutSlug: MenuCategory | undefined = await db.categories.where("slug").equals(slug).first();
+      if (mevcutSlug && mevcutSlug.id !== duzenlenenKategoriId) {
+        setHataMesaji(`Bu kategori daha önce eklenmiş: slug=${slug}`);
+        return;
+      }
+      const simdi: number = Date.now();
+      const kategori: MenuCategory = {
+        id: duzenlenenKategoriId ?? createKayitId(),
+        nameTR,
+        nameEN: kategoriAdiEN.trim().length > 0 ? kategoriAdiEN.trim() : undefined,
+        slug,
+        imageUrl: kategoriGorselUrl.trim().length > 0 ? kategoriGorselUrl.trim() : undefined,
+        sortOrder: Number.isFinite(kategoriSira) ? kategoriSira : 1,
+        active: isKategoriAktif,
+        createdAt: simdi,
+        updatedAt: simdi,
+      };
+      const cs: ChangeSet = {
+        id: createKayitId(),
+        status: "approved",
+        patches: [{ type: duzenlenenKategoriId ? "UPDATE_CATEGORY" : "ADD_CATEGORY", payload: kategori }],
+        createdAt: simdi,
+        approvedAt: simdi,
+        approvedBy: adminSession.adminId,
+        baseSnapshotId: undefined,
+      };
+      await db.changeSets.put(cs);
+      await publishChangeSet(adminSession, cs.id);
+      setBasariMesaji(duzenlenenKategoriId ? "Kategori güncellendi ve yayınlandı." : "Kategori kaydedildi ve yayınlandı.");
+      temizleKategoriForm();
+      await yukleAdminVeri();
+      setSekme("urun_ekle");
+      if (!seciliKategoriId) {
+        setSeciliKategoriId(kategori.id);
+      }
+    } catch (err: unknown) {
+      setHataMesaji(resolveHataMesaji(err));
     }
   }
 
