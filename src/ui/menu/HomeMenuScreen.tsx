@@ -77,7 +77,7 @@ export default function HomeMenuScreen() {
           <h1 className="menu-title">Menü</h1>
           <div className="menu-actions">
             {isAdminKisayoluGorunur ? (
-              <button className="menu-secondary" onClick={() => navigate("/admin")}>
+              <button className="menu-secondary" onClick={() => navigate("/?sayfa=admin")}>
                 Admin Paneli
               </button>
             ) : null}
