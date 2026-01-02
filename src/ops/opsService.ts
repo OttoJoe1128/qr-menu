@@ -4,6 +4,14 @@ import { TableSession } from "./ops.types";
 export async function openTableSession(
   tableNumber: string,
 ): Promise<TableSession> {
+  const mevcut: TableSession | undefined = await db.tableSessions
+    .where("tableNumber")
+    .equals(tableNumber)
+    .and((s: TableSession) => s.status === "OPEN")
+    .first();
+  if (mevcut) {
+    return mevcut;
+  }
   const session: TableSession = {
     id: crypto.randomUUID(),
     tableNumber,

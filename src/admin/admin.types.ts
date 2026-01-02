@@ -1,5 +1,6 @@
 /** * Admin domain types * Central authority definitions */ /* ======================================================   PERMISSIONS   ====================================================== */ export type AdminPermission =
 
+    | "VIEW_ADMIN_DASHBOARD"
     | "APPROVE_CHANGESET"
     | "PUBLISH_CHANGESET"
     | "ROLLBACK"

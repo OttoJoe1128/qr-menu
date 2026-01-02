@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { applyChangeSet } from "../updates/applyChangeSet";
 import { createApprovedSnapshot } from "../updates/snapshotService";
-import { writeAuditEvent } from "../audit/writeAuditEvent";
+import { writeAuditEvent } from "../audit/auditService";
 import { AdminSession } from "./admin.types";
 import { assertPermission } from "./adminPolicy";
 export async function approveChangeSet(

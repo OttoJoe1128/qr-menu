@@ -16,7 +16,8 @@ import { db, Snapshot } from "../db";
 export async function computeMenuContentHash(): Promise<string> {
   const menuItems = await db.menuItems.orderBy("id").toArray();
   const recipes = await db.recipes.orderBy("id").toArray();
-  const payload = JSON.stringify({ menuItems, recipes });
+  const categories = await db.categories.orderBy("id").toArray();
+  const payload = JSON.stringify({ menuItems, recipes, categories });
   return sha256Hex(payload);
 }
 export async function createApprovedSnapshot(

@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import "./MainScreen.css";
 
-import breakfastImg from "../assets/breakfast.jpg";
-import lunchImg from "../assets/lunch.jpg";
-import dinnerImg from "../assets/dinner.jpg";
+import breakfastImg from "../../assets/images/breakfast.jpeg";
+import recommendImg from "../../assets/images/recommend.jpeg";
+import dinnerImg from "../../assets/images/dinner.jpeg";
 
 export default function MainScreen() {
   const navigate = useNavigate();
@@ -20,10 +20,10 @@ export default function MainScreen() {
 
       <div
         className="menu-card"
-        style={{ backgroundImage: `url(${lunchImg})` }}
-        onClick={() => navigate("/menu?type=lunch")}
+        style={{ backgroundImage: `url(${recommendImg})` }}
+        onClick={() => navigate("/menu")}
       >
-        <div className="menu-title">Lunch</div>
+        <div className="menu-title">Önerilenler</div>
       </div>
 
       <div
