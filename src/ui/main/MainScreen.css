@@ -44,6 +44,20 @@
   min-height: 200px;
 }
 
+.admin-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 50;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(17, 17, 17, 0.85);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
 @media (min-width: 600px) {
   .main-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

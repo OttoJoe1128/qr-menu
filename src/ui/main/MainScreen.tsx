@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./MainScreen.css";
 
 import breakfastImg from "../../assets/images/breakfast.jpeg";
@@ -7,9 +8,19 @@ import dinnerImg from "../../assets/images/dinner.jpeg";
 
 export default function MainScreen() {
   const navigate = useNavigate();
+  const [aramaParametreleri] = useSearchParams();
+  const isAdminKisayoluGorunur: boolean = useMemo((): boolean => {
+    const isAdmin: string | null = aramaParametreleri.get("admin");
+    return isAdmin === "1";
+  }, [aramaParametreleri]);
 
   return (
     <div className="main-grid">
+      {isAdminKisayoluGorunur ? (
+        <button className="admin-fab" onClick={() => navigate("/admin")}>
+          Admin
+        </button>
+      ) : null}
       <div
         className="menu-card"
         style={{ backgroundImage: `url(${breakfastImg})` }}
