@@ -1,10 +1,27 @@
 .day-menu {
   padding: 16px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .day-title {
   font-size: 24px;
   margin-bottom: 12px;
+}
+
+.day-secondary {
+  border: 1px solid #e6e6e6;
+  background: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .category-list {
@@ -24,8 +41,63 @@
   white-space: nowrap;
 }
 
+.category-item--active {
+  background: #111;
+  color: #fff;
+}
+
+.day-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.day-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.day-control-label {
+  font-size: 13px;
+  color: #444;
+}
+
+.day-select {
+  border: 1px solid #e6e6e6;
+  background: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
 .menu-placeholder {
   margin-top: 40px;
   color: #777;
   font-size: 14px;
+}
+
+.day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.day-row {
+  border: 1px solid #ededed;
+  background: white;
+  padding: 12px 14px;
+  border-radius: 14px;
+}
+
+.day-row-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.day-row-tags {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #666;
 }
