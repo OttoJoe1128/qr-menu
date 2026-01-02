@@ -34,12 +34,27 @@ export async function applyChangeSet(cs: ChangeSet) {
         if (mevcutSlug && mevcutSlug.id !== kategori.id) {
           throw new Error(`Category already exists (slug): ${kategori.slug}`);
         }
+        const onceAktif: boolean = mevcut.active;
+        const sonraAktif: boolean = kategori.active;
         await db.categories.put({
           ...mevcut,
           ...kategori,
           createdAt: mevcut.createdAt,
           updatedAt: Date.now(),
         });
+        if (onceAktif && !sonraAktif) {
+          const bagliUrunler: MenuItem[] = await db.menuItems.where("categoryId").equals(kategori.id).toArray();
+          for (const urun of bagliUrunler) {
+            if (!urun.available) {
+              continue;
+            }
+            await db.menuItems.put({
+              ...urun,
+              available: false,
+              updatedAt: Date.now(),
+            });
+          }
+        }
         break;
       }
       case "ADD_RECIPE": {
