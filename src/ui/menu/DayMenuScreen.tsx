@@ -193,7 +193,9 @@ export default function DayMenuScreen() {
           {filtrelenmisUrunler.map((urun) => (
             <div key={urun.id} className="day-row" role="listitem">
               <div className="day-row-top">
-                <div className="day-row-title">{urun.nameTR}</div>
+                <button className="day-row-titleBtn" onClick={() => navigate(`/menu/item/${encodeURIComponent(urun.id)}`)}>
+                  {urun.nameTR}
+                </button>
                 <div className="day-row-rating">
                   <span className="day-row-ratingValue">
                     {(puanOrtalamaMap.get(urun.id) ?? 0).toFixed(1)}
@@ -209,6 +211,9 @@ export default function DayMenuScreen() {
                     {s}
                   </button>
                 ))}
+                <button className="day-row-detailBtn" onClick={() => navigate(`/menu/item/${encodeURIComponent(urun.id)}`)}>
+                  Detay →
+                </button>
               </div>
             </div>
           ))}
