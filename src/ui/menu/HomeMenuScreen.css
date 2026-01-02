@@ -1,0 +1,107 @@
+.home-menu {
+  padding: 16px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.menu-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.menu-title {
+  margin: 0;
+  color: #111;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.menu-secondary {
+  border: 1px solid #e6e6e6;
+  background: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.menu-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.menu-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-control-label {
+  font-size: 13px;
+  color: #444;
+}
+
+.menu-select {
+  border: 1px solid #e6e6e6;
+  background: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid #ededed;
+  background: white;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-row-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-row-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.menu-row-subtitle {
+  font-size: 13px;
+  color: #666;
+}
+
+.menu-row-right {
+  color: #888;
+  font-size: 18px;
+}
+
+.menu-empty {
+  padding: 18px 12px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}

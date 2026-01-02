@@ -1,0 +1,146 @@
+import Dexie, { Table } from "dexie";
+import { TemplateRegistry } from "../templates";
+import { AuditEvent } from "../audit/audit.types";
+import { TableSession } from "../ops/ops.types";
+
+/* ======================================================
+   CORE STATE
+====================================================== */
+export interface CoreState {
+  id: "core";
+  schemaVersion: number;
+  lastApprovedSnapshotId?: string;
+  updatedAt: number;
+}
+
+/* ======================================================
+   TEMPLATE SAFETY
+====================================================== */
+export type TemplateId = keyof typeof TemplateRegistry;
+
+/* ======================================================
+   MENU
+====================================================== */
+export interface MenuItem {
+  id: string;
+  nameTR: string;
+  nameEN?: string;
+  templateId: TemplateId;
+  recipeId?: string;
+  categoryId?: string;
+  tags: string[];
+  available: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/* ======================================================
+   CATEGORIES
+====================================================== */
+export interface MenuCategory {
+  id: string;
+  nameTR: string;
+  nameEN?: string;
+  slug: string;
+  imageUrl?: string;
+  sortOrder: number;
+  active: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/* ======================================================
+   RECIPE
+====================================================== */
+export interface Recipe {
+  id: string;
+  heroImage: string;
+  description: string;
+  ingredients: string[];
+  steps: string[];
+  pairings?: string[];
+  chefNotes?: string;
+  notes?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/* ======================================================
+   RATINGS
+====================================================== */
+export interface MenuRating {
+  id: string;
+  menuItemId: string;
+  tableSessionId?: string;
+  score: number;
+  createdAt: number;
+}
+
+/* ======================================================
+   CHANGESET
+====================================================== */
+export type ChangeSetStatus = "draft" | "review" | "approved" | "published";
+
+export interface ChangeSet {
+  id: string;
+  baseSnapshotId?: string;
+  status: ChangeSetStatus;
+  patches: any[];
+  createdAt: number;
+  approvedAt?: number;
+  approvedBy?: string;
+}
+
+/* ======================================================
+   SNAPSHOT
+====================================================== */
+export interface Snapshot {
+  id: string;
+  contentHash: string;
+  menuVersion: number;
+  createdAt: number;
+  approvedBy?: string;
+}
+
+/* ======================================================
+   DATABASE
+====================================================== */
+class QRMenuDB extends Dexie {
+  core!: Table<CoreState, "core">;
+  menuItems!: Table<MenuItem, string>;
+  categories!: Table<MenuCategory, string>;
+  recipes!: Table<Recipe, string>;
+  ratings!: Table<MenuRating, string>;
+  changeSets!: Table<ChangeSet, string>;
+  snapshots!: Table<Snapshot, string>;
+  auditEvents!: Table<AuditEvent, string>;
+  tableSessions!: Table<TableSession, string>;
+
+  constructor() {
+    super("qr-menu-db");
+
+    // v1 — Core system
+    this.version(1).stores({
+      core: "id",
+      menuItems: "id, templateId, available, updatedAt",
+      recipes: "id, updatedAt",
+      changeSets: "id, status, createdAt",
+      snapshots: "id, menuVersion, createdAt",
+      auditEvents: "id, type, severity, createdAt",
+    });
+
+    // v2 — OPS / Table Sessions
+    this.version(2).stores({
+      tableSessions: "id, tableNumber, status, openedAt",
+    });
+
+    // v3 — Categories + Ratings + menuItem category index
+    this.version(3).stores({
+      menuItems: "id, templateId, categoryId, available, updatedAt",
+      categories: "id, slug, active, sortOrder, updatedAt",
+      ratings: "id, menuItemId, tableSessionId, createdAt",
+    });
+  }
+}
+
+export const db = new QRMenuDB();
