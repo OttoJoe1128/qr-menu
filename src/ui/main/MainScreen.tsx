@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./MainScreen.css";
 
@@ -9,16 +9,29 @@ import dinnerImg from "../../assets/images/dinner.jpeg";
 export default function MainScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
+  const adminKisayoluAnahtari: string = "qr_menu_admin_kisayolu";
   const isAdminKisayoluGorunur: boolean = useMemo((): boolean => {
     const isAdmin: string | null = aramaParametreleri.get("admin");
-    return isAdmin === "1";
-  }, [aramaParametreleri]);
+    if (isAdmin === "1") {
+      return true;
+    }
+    const kayitli: string | null = localStorage.getItem(adminKisayoluAnahtari);
+    return kayitli === "1";
+  }, [aramaParametreleri, adminKisayoluAnahtari]);
+
+  useEffect((): void => {
+    const isAdmin: string | null = aramaParametreleri.get("admin");
+    if (isAdmin !== "1") {
+      return;
+    }
+    localStorage.setItem(adminKisayoluAnahtari, "1");
+  }, [aramaParametreleri, adminKisayoluAnahtari]);
 
   return (
     <div className="main-grid">
       {isAdminKisayoluGorunur ? (
         <button className="admin-fab" onClick={() => navigate("/admin")}>
-          Admin
+          Admin Paneli
         </button>
       ) : null}
       <div

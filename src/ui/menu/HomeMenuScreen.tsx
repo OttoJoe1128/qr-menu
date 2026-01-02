@@ -12,10 +12,20 @@ import {
 export default function HomeMenuScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
+  const adminKisayoluAnahtari: string = "qr_menu_admin_kisayolu";
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [kategoriler, setKategoriler] = useState<MenuCategory[]>([]);
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
   const [siralamaModu, setSiralamaModu] = useState<MenuKategoriSiralamaModu>("sayim_azalan");
+
+  const isAdminKisayoluGorunur: boolean = useMemo((): boolean => {
+    const isAdmin: string | null = aramaParametreleri.get("admin");
+    if (isAdmin === "1") {
+      return true;
+    }
+    const kayitli: string | null = localStorage.getItem(adminKisayoluAnahtari);
+    return kayitli === "1";
+  }, [aramaParametreleri, adminKisayoluAnahtari]);
 
   useEffect((): (() => void) => {
     let isIptalEdildi: boolean = false;
@@ -65,9 +75,16 @@ export default function HomeMenuScreen() {
       <div className="menu-header">
         <div className="menu-title-row">
           <h1 className="menu-title">Menü</h1>
-          <button className="menu-secondary" onClick={() => navigate("/")}>
-            Ana Ekran
-          </button>
+          <div className="menu-actions">
+            {isAdminKisayoluGorunur ? (
+              <button className="menu-secondary" onClick={() => navigate("/admin")}>
+                Admin Paneli
+              </button>
+            ) : null}
+            <button className="menu-secondary" onClick={() => navigate("/")}>
+              Ana Ekran
+            </button>
+          </div>
         </div>
         <div className="menu-controls">
           <label className="menu-control">

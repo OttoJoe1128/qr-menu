@@ -18,6 +18,12 @@
   gap: 12px;
 }
 
+.menu-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .menu-title {
   margin: 0;
   color: #111;
