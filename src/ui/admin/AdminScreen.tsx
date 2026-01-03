@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { db, ChangeSet, MenuCategory, MenuItem, MenuRating, Recipe, TemplateId } from "../../db";
 import { publishChangeSet } from "../../admin/adminActions";
 import { AdminSession } from "../../admin/admin.types";
+import { fullMenuKategoriler, fullMenuItems } from "../../dev/fullMenuData";
 import "./AdminScreen.css";
 
 type AdminTab = "kategori" | "urun_ekle" | "urun_liste" | "puanlar" | "qr_uret" | "veri_yukle";
@@ -661,21 +662,25 @@ function VeriYukleTab({ adminSession, onSuccess, onError }: { adminSession: Admi
 
   return (
     <section className="admin__card">
-      <h2>Örnek Menü Verilerini Yükle</h2>
+      <h2>📦 Tam Menü Verilerini Yükle</h2>
       <div className="admin__hint">
-        Bu işlem browser veritabanına tüm menü verilerini yükler:
-        <ul>
-          <li>10 Kategori</li>
-          <li>50 Recipe</li>
-          <li>50 Menü Öğesi</li>
+        <strong>Bu işlem browser veritabanına tüm menü verilerini yükler:</strong>
+        <ul style={{ marginTop: "10px", marginLeft: "20px" }}>
+          <li><strong>10 Kategori:</strong> Kahvaltı, Çorbalar, Başlangıçlar, Salatalar, Phuket İmza Yemekleri, Deniz Ürünleri, Batı Ana Yemekleri, Comfort Food, Makarnalar, Tatlılar</li>
+          <li><strong>50 Recipe:</strong> Her ürün için detaylı malzemeler, adımlar, eşleştirmeler ve şef notları</li>
+          <li><strong>50 Menü Öğesi:</strong> Tüm kategorilere dağıtılmış ürünler</li>
         </ul>
+        <p style={{ marginTop: "10px", color: "#666" }}>
+          ⚠️ Bu işlem biraz zaman alabilir (yaklaşık 10-15 saniye). Lütfen bekleyin...
+        </p>
       </div>
       <button 
         className="admin__primary" 
         onClick={() => void yukleFullMenu()}
         disabled={isYukleniyor}
+        style={{ marginTop: "20px" }}
       >
-        {isYukleniyor ? "Yükleniyor..." : "🚀 Tüm Menüyü Yükle"}
+        {isYukleniyor ? "⏳ Yükleniyor... (Lütfen bekleyin)" : "🚀 Tüm Menüyü Yükle (50 Ürün)"}
       </button>
     </section>
   );
@@ -684,21 +689,8 @@ function VeriYukleTab({ adminSession, onSuccess, onError }: { adminSession: Admi
 async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> {
   const simdi = Date.now();
   
-  // Kategorileri ekle
-  const kategoriler = [
-    { id: "cat-kahvalti", nameTR: "Kahvaltı", nameEN: "Breakfast", slug: "kahvalti", sortOrder: 1 },
-    { id: "cat-corbalar", nameTR: "Çorbalar", nameEN: "Soups", slug: "corbalar", sortOrder: 2 },
-    { id: "cat-baslangiclar", nameTR: "Başlangıçlar & Atıştırmalıklar", nameEN: "Starters & Appetizers", slug: "baslangiclar-atistirmaliklar", sortOrder: 3 },
-    { id: "cat-salatalar", nameTR: "Salatalar", nameEN: "Salads", slug: "salatalar", sortOrder: 4 },
-    { id: "cat-phuket-imza", nameTR: "Phuket İmza Yemekleri", nameEN: "Phuket Signature Dishes", slug: "phuket-imza-yemekleri", sortOrder: 5 },
-    { id: "cat-deniz-urunleri", nameTR: "Deniz Ürünleri", nameEN: "Seafood", slug: "deniz-urunleri", sortOrder: 6 },
-    { id: "cat-bati-anayemekleri", nameTR: "Batı Ana Yemekleri", nameEN: "Western Main Courses", slug: "bati-anayemekleri", sortOrder: 7 },
-    { id: "cat-comfort-food", nameTR: "Comfort Food", nameEN: "Comfort Food", slug: "comfort-food", sortOrder: 8 },
-    { id: "cat-makarnalar", nameTR: "Makarnalar", nameEN: "Pasta", slug: "makarnalar", sortOrder: 9 },
-    { id: "cat-tatlilar", nameTR: "Tatlılar", nameEN: "Desserts", slug: "tatlilar", sortOrder: 10 },
-  ];
-
-  for (const kat of kategoriler) {
+  // 1. Kategorileri ekle
+  for (const kat of fullMenuKategoriler) {
     const cs: ChangeSet = {
       id: globalThis.crypto.randomUUID(),
       status: "approved",
@@ -714,38 +706,8 @@ async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> 
     await publishChangeSet(adminSession, cs.id);
   }
 
-  // Menü öğelerini ve recipe'leri ekle (sadece birkaç örnek)
-  const ornekUrunler = [
-    {
-      categoryId: "cat-kahvalti",
-      nameTR: "Smashed Avocado on Sourdough",
-      nameEN: "Smashed Avocado on Sourdough",
-      description: "Kızarmış ekşi maya ekmeği üzerinde taze ezilmiş avokado, poşe yumurta ve beyaz peynir ile servis edilen modern sporcu kahvaltısı.",
-      ingredients: ["Ekşi maya ekmeği", "Taze avokado", "Poşe yumurta", "Beyaz peynir"],
-      steps: ["Ekmeği kızartın", "Avokadoyu ezin", "Yumurta poşe yapın", "Birleştirin"],
-      tags: ["avocado", "healthy"],
-    },
-    {
-      categoryId: "cat-corbalar",
-      nameTR: "Tom Yum Goong (Creamy)",
-      nameEN: "Tom Yum Goong (Creamy)",
-      description: "Büyük karidesler ve aromatik otlarla hazırlanan, süt ilavesiyle yumuşatılmış dünyaca ünlü acılı ve ekşili çorba.",
-      ingredients: ["Karides", "Limon otu", "Galangal", "Hindistan cevizi sütü"],
-      steps: ["Suyu kaynatın", "Karidesleri ekleyin", "Baharatları ekleyin"],
-      tags: ["thai", "soup", "spicy"],
-    },
-    {
-      categoryId: "cat-phuket-imza",
-      nameTR: "Pad Kra Pao Wagyu",
-      nameEN: "Pad Kra Pao Wagyu",
-      description: "Wagyu etinin taze fesleğen ve acı biberle wok tavada sotelenip, üzerine sahanda yumurta konulduğu premium sokak lezzeti.",
-      ingredients: ["Wagyu dana", "Thai fesleğeni", "Acı biber", "Sahanda yumurta"],
-      steps: ["Wok'u ısıtın", "Wagyu'yu soteleyin", "Fesleğen ekleyin", "Yumurta ile servis edin"],
-      tags: ["wagyu", "thai", "signature"],
-    },
-  ];
-
-  for (const urun of ornekUrunler) {
+  // 2. Tüm 50 menü öğesini ve recipe'leri ekle
+  for (const urun of fullMenuItems) {
     const recipeId = globalThis.crypto.randomUUID();
     const menuItemId = globalThis.crypto.randomUUID();
     
@@ -757,10 +719,12 @@ async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> 
           type: "ADD_RECIPE", 
           payload: {
             id: recipeId,
-            heroImage: "/images/placeholder.jpg",
+            heroImage: urun.heroImage,
             description: urun.description,
             ingredients: urun.ingredients,
             steps: urun.steps,
+            pairings: urun.pairings,
+            chefNotes: urun.chefNotes,
             createdAt: simdi,
             updatedAt: simdi,
           } 
@@ -771,7 +735,7 @@ async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> 
             id: menuItemId,
             nameTR: urun.nameTR,
             nameEN: urun.nameEN,
-            templateId: "food_detail_v1",
+            templateId: "food_detail_v1" as TemplateId,
             categoryId: urun.categoryId,
             recipeId: recipeId,
             tags: urun.tags,
