@@ -258,6 +258,18 @@ export default function MenuItemDetailScreen() {
           </div>
         </>
       )}
+
+      <nav className="alt-nav" aria-label="Alt Menü">
+        <button className="alt-nav__btn" onClick={() => navigate("/")}>
+          Ana Ekran
+        </button>
+        <button className="alt-nav__btn" onClick={() => navigate("/menu")}>
+          Menü
+        </button>
+        <button className="alt-nav__btn" onClick={() => geriDon()}>
+          Günün Menüsü
+        </button>
+      </nav>
     </div>
   );
 }
