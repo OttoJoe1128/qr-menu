@@ -4,6 +4,17 @@
   font-weight: 400;
   color: #eaeaea;
   background-color: #0f0f10;
+  --renk-arka-plan: #0f0f10;
+  --renk-yuzey: #141416;
+  --renk-kart: #17171a;
+  --renk-yazi: #eaeaea;
+  --renk-yazi-ikincil: rgba(234, 234, 234, 0.72);
+  --renk-kenar: rgba(255, 255, 255, 0.12);
+  --renk-kenar-sert: rgba(255, 255, 255, 0.18);
+  --renk-vurgu: #ffffff;
+  --renk-vurgu-yazi: #111111;
+  --golge-kart: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --radius-kart: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -24,7 +35,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #0f0f10;
+  background: var(--renk-arka-plan);
 }
 
 #root {
@@ -39,12 +50,34 @@ textarea {
   font: inherit;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #111;
     background-color: #ffffff;
+    --renk-arka-plan: #ffffff;
+    --renk-yuzey: #f7f7f8;
+    --renk-kart: #ffffff;
+    --renk-yazi: #111111;
+    --renk-yazi-ikincil: rgba(17, 17, 17, 0.64);
+    --renk-kenar: rgba(17, 17, 17, 0.10);
+    --renk-kenar-sert: rgba(17, 17, 17, 0.16);
+    --renk-vurgu: #111111;
+    --renk-vurgu-yazi: #ffffff;
+    --golge-kart: 0 10px 30px rgba(17, 17, 17, 0.08);
   }
   body {
-    background: #ffffff;
+    background: var(--renk-arka-plan);
   }
 }
