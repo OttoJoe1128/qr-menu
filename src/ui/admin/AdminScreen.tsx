@@ -389,6 +389,13 @@ export default function AdminScreen() {
         <div className="admin__subtitle">
           Kategori: {toplamKategori} • Ürün: {toplamUrun}
         </div>
+        <button 
+          className="admin__secondary" 
+          onClick={() => window.location.href = "/"}
+          style={{ position: "absolute", right: "20px", top: "20px" }}
+        >
+          ← Ana Sayfa
+        </button>
       </header>
 
       <nav className="admin__tabs">
