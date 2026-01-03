@@ -211,6 +211,62 @@ export default function AdminScreen() {
     setSekme("kategori");
   }
 
+  async function silKategori(kategoriId: string): Promise<void> {
+    const kategori: MenuCategory | undefined = kategoriler.find((k) => k.id === kategoriId);
+    if (!kategori) {
+      setHataMesaji("Kategori bulunamadı.");
+      return;
+    }
+    
+    const bagliUrunler: MenuItem[] = menuItems.filter((m) => m.categoryId === kategoriId);
+    const onayMesaji = bagliUrunler.length > 0
+      ? `⚠️ Bu kategoriye bağlı ${bagliUrunler.length} ürün var!\n\nKategoriyi silmek istediğinize emin misiniz?\n(Ürünler silinmeyecek, sadece kategori bağlantısı kaldırılacak)`
+      : `"${kategori.nameTR}" kategorisini silmek istediğinize emin misiniz?`;
+    
+    if (!window.confirm(onayMesaji)) {
+      return;
+    }
+
+    setHataMesaji(null);
+    setBasariMesaji(null);
+    
+    try {
+      await db.categories.delete(kategoriId);
+      setBasariMesaji(`"${kategori.nameTR}" kategorisi silindi.`);
+      await yukleAdminVeri();
+    } catch (err: any) {
+      setHataMesaji(err.message ?? "Kategori silinemedi.");
+    }
+  }
+
+  async function silMenuItem(menuItemId: string): Promise<void> {
+    const item: MenuItem | undefined = menuItems.find((m) => m.id === menuItemId);
+    if (!item) {
+      setHataMesaji("Ürün bulunamadı.");
+      return;
+    }
+    
+    if (!window.confirm(`"${item.nameTR}" ürünü ve ilgili recipe'yi silmek istediğinize emin misiniz?`)) {
+      return;
+    }
+
+    setHataMesaji(null);
+    setBasariMesaji(null);
+    
+    try {
+      // Önce recipe'yi sil
+      if (item.recipeId) {
+        await db.recipes.delete(item.recipeId);
+      }
+      // Sonra menu item'ı sil
+      await db.menuItems.delete(menuItemId);
+      setBasariMesaji(`"${item.nameTR}" ürünü silindi.`);
+      await yukleAdminVeri();
+    } catch (err: any) {
+      setHataMesaji(err.message ?? "Ürün silinemedi.");
+    }
+  }
+
   async function kaydetMenuItem(): Promise<void> {
     setHataMesaji(null);
     setBasariMesaji(null);
@@ -473,6 +529,13 @@ export default function AdminScreen() {
                     <button className="admin__secondary admin__inlineBtn" onClick={() => void baslatKategoriDuzenle(k.id)}>
                       Düzenle
                     </button>
+                    <button 
+                      className="admin__secondary admin__inlineBtn" 
+                      onClick={() => void silKategori(k.id)}
+                      style={{ backgroundColor: "#dc3545", color: "white" }}
+                    >
+                      🗑️ Sil
+                    </button>
                   </div>
                 </div>
               ))}
@@ -579,6 +642,13 @@ export default function AdminScreen() {
                     >
                       {m.available ? "Pasife Al" : "Aktif Et"}
                     </button>
+                    <button 
+                      className="admin__secondary admin__inlineBtn" 
+                      onClick={() => void silMenuItem(m.id)}
+                      style={{ backgroundColor: "#dc3545", color: "white" }}
+                    >
+                      🗑️ Sil
+                    </button>
                   </div>
                 </div>
               ))}
@@ -653,11 +723,11 @@ export default function AdminScreen() {
 
 function VeriYukleTab({ adminSession, onSuccess, onError }: { adminSession: AdminSession, onSuccess: () => void, onError: (msg: string) => void }) {
   const [isYukleniyor, setIsYukleniyor] = useState(false);
+  const [isSiliyor, setIsSiliyor] = useState(false);
 
   async function yukleFullMenu(): Promise<void> {
     setIsYukleniyor(true);
     try {
-      // Import seed fonksiyonunu dinamik olarak çağıramayız, bu yüzden inline yazıyoruz
       await seedFullMenuToBrowser(adminSession);
       onSuccess();
     } catch (err: any) {
@@ -667,28 +737,105 @@ function VeriYukleTab({ adminSession, onSuccess, onError }: { adminSession: Admi
     }
   }
 
+  async function temizleVeritabani(): Promise<void> {
+    const onay = window.confirm(
+      "⚠️ DİKKAT!\n\n" +
+      "Bu işlem TÜM verileri silecek:\n" +
+      "• Tüm kategoriler\n" +
+      "• Tüm menü öğeleri\n" +
+      "• Tüm recipe'ler\n" +
+      "• Tüm puanlar\n" +
+      "• Tüm changeset'ler\n\n" +
+      "Bu işlem GERİ ALINAMAZ!\n\n" +
+      "Devam etmek istediğinize emin misiniz?"
+    );
+    
+    if (!onay) {
+      return;
+    }
+
+    setIsSiliyor(true);
+    try {
+      // Tüm tabloları temizle
+      await db.categories.clear();
+      await db.menuItems.clear();
+      await db.recipes.clear();
+      await db.ratings.clear();
+      await db.changeSets.clear();
+      await db.snapshots.clear();
+      await db.auditEvents.clear();
+      
+      alert("✅ Veritabanı başarıyla temizlendi!\n\nŞimdi yeni verileri yükleyebilirsiniz.");
+      onSuccess();
+    } catch (err: any) {
+      onError(err.message ?? "Veritabanı temizleme başarısız.");
+    } finally {
+      setIsSiliyor(false);
+    }
+  }
+
   return (
     <section className="admin__card">
-      <h2>📦 Tam Menü Verilerini Yükle</h2>
-      <div className="admin__hint">
-        <strong>Bu işlem browser veritabanına tüm menü verilerini yükler:</strong>
-        <ul style={{ marginTop: "10px", marginLeft: "20px" }}>
-          <li><strong>10 Kategori:</strong> Kahvaltı, Çorbalar, Başlangıçlar, Salatalar, Phuket İmza Yemekleri, Deniz Ürünleri, Batı Ana Yemekleri, Comfort Food, Makarnalar, Tatlılar</li>
-          <li><strong>50 Recipe:</strong> Her ürün için detaylı malzemeler, adımlar, eşleştirmeler ve şef notları</li>
-          <li><strong>50 Menü Öğesi:</strong> Tüm kategorilere dağıtılmış ürünler</li>
-        </ul>
-        <p style={{ marginTop: "10px", color: "#666" }}>
-          ⚠️ Bu işlem biraz zaman alabilir (yaklaşık 10-15 saniye). Lütfen bekleyin...
-        </p>
+      <h2>📦 Veri Yönetimi</h2>
+      
+      {/* TEMİZLE BÖLÜMÜ */}
+      <div style={{ marginBottom: "30px", padding: "20px", backgroundColor: "#fff3cd", borderRadius: "8px", border: "2px solid #ffc107" }}>
+        <h3 style={{ marginTop: 0, color: "#856404" }}>🗑️ Veritabanını Temizle</h3>
+        <div className="admin__hint" style={{ marginBottom: "15px" }}>
+          <strong style={{ color: "#dc3545" }}>⚠️ DİKKAT:</strong> Bu işlem tüm verileri kalıcı olarak siler!
+          <ul style={{ marginTop: "10px", marginLeft: "20px", color: "#856404" }}>
+            <li>Tüm kategoriler silinecek</li>
+            <li>Tüm menü öğeleri silinecek</li>
+            <li>Tüm recipe'ler silinecek</li>
+            <li>Tüm puanlar silinecek</li>
+          </ul>
+          <p style={{ marginTop: "10px", fontWeight: "bold" }}>
+            Bu işlem geri alınamaz! Devam etmeden önce emin olun.
+          </p>
+        </div>
+        <button 
+          className="admin__secondary" 
+          onClick={() => void temizleVeritabani()}
+          disabled={isSiliyor}
+          style={{ 
+            backgroundColor: "#dc3545", 
+            color: "white",
+            border: "none",
+            padding: "12px 24px",
+            fontSize: "16px",
+            fontWeight: "bold"
+          }}
+        >
+          {isSiliyor ? "🗑️ Siliniyor..." : "🗑️ Tüm Verileri Sil"}
+        </button>
       </div>
-      <button 
-        className="admin__primary" 
-        onClick={() => void yukleFullMenu()}
-        disabled={isYukleniyor}
-        style={{ marginTop: "20px" }}
-      >
-        {isYukleniyor ? "⏳ Yükleniyor... (Lütfen bekleyin)" : "🚀 Tüm Menüyü Yükle (50 Ürün)"}
-      </button>
+
+      {/* YÜKLEME BÖLÜMÜ */}
+      <div style={{ padding: "20px", backgroundColor: "#d1ecf1", borderRadius: "8px", border: "2px solid #17a2b8" }}>
+        <h3 style={{ marginTop: 0, color: "#0c5460" }}>📥 Tam Menü Verilerini Yükle</h3>
+        <div className="admin__hint">
+          <strong>Bu işlem browser veritabanına tüm menü verilerini yükler:</strong>
+          <ul style={{ marginTop: "10px", marginLeft: "20px" }}>
+            <li><strong>10 Kategori:</strong> Kahvaltı, Çorbalar, Başlangıçlar, Salatalar, Phuket İmza Yemekleri, Deniz Ürünleri, Batı Ana Yemekleri, Comfort Food, Makarnalar, Tatlılar</li>
+            <li><strong>50 Recipe:</strong> Her ürün için detaylı malzemeler, adımlar, eşleştirmeler ve şef notları</li>
+            <li><strong>50 Menü Öğesi:</strong> Tüm kategorilere dağıtılmış ürünler</li>
+          </ul>
+          <p style={{ marginTop: "10px", color: "#0c5460" }}>
+            ⏱️ Bu işlem biraz zaman alabilir (yaklaşık 10-15 saniye). Lütfen bekleyin...
+          </p>
+          <p style={{ marginTop: "10px", fontWeight: "bold", color: "#856404" }}>
+            💡 İpucu: Eğer daha önce veri yüklediyseniz, önce "Tüm Verileri Sil" butonuna basın, sonra yeniden yükleyin.
+          </p>
+        </div>
+        <button 
+          className="admin__primary" 
+          onClick={() => void yukleFullMenu()}
+          disabled={isYukleniyor}
+          style={{ marginTop: "20px" }}
+        >
+          {isYukleniyor ? "⏳ Yükleniyor... (Lütfen bekleyin)" : "🚀 Tüm Menüyü Yükle (50 Ürün)"}
+        </button>
+      </div>
     </section>
   );
 }
