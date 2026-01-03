@@ -3,10 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import "./MainScreen.css";
 import AdminScreen from "../admin/AdminScreen";
 
-import breakfastImg from "../../assets/images/breakfast.jpeg";
-import recommendImg from "../../assets/images/recommend.jpeg";
-import dinnerImg from "../../assets/images/dinner.jpeg";
-
 export default function MainScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
@@ -41,34 +37,42 @@ export default function MainScreen() {
   }
 
   return (
-    <div className="main-grid">
+    <div className="welcome-screen">
       {isAdminKisayoluGorunur ? (
         <button className="admin-fab" onClick={() => navigate("/?sayfa=admin")}>
           Admin Paneli
         </button>
       ) : null}
-      <div
-        className="menu-card"
-        style={{ backgroundImage: `url(${breakfastImg})` }}
-        onClick={() => navigate("/menu?type=breakfast")}
-      >
-        <div className="menu-title">Breakfast</div>
-      </div>
+      
+      <div className="welcome-container">
+        <div className="welcome-logo">
+          <div className="logo-circle">🍽️</div>
+        </div>
+        
+        <h1 className="welcome-title">The Brook Phuket</h1>
+        <p className="welcome-subtitle">Restaurant & Bar</p>
+        
+        <div className="welcome-divider"></div>
+        
+        <p className="welcome-text">
+          Hoş Geldiniz
+        </p>
+        <p className="welcome-text-en">
+          Welcome to our restaurant
+        </p>
+        
+        <button 
+          className="welcome-button"
+          onClick={() => navigate("/menu")}
+        >
+          <span className="button-text">Menüyü Görüntüle</span>
+          <span className="button-icon">→</span>
+        </button>
 
-      <div
-        className="menu-card"
-        style={{ backgroundImage: `url(${recommendImg})` }}
-        onClick={() => navigate("/menu")}
-      >
-        <div className="menu-title">Önerilenler</div>
-      </div>
-
-      <div
-        className="menu-card wide"
-        style={{ backgroundImage: `url(${dinnerImg})` }}
-        onClick={() => navigate("/menu?type=dinner")}
-      >
-        <div className="menu-title">Dinner & Bar</div>
+        <div className="welcome-info">
+          <p>🕐 Açık Saatler: 08:00 - 23:00</p>
+          <p>📍 Chalong, Phuket</p>
+        </div>
       </div>
     </div>
   );

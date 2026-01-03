@@ -414,6 +414,127 @@ export default function AdminScreen() {
     setBasariMesaji("QR oluşturuldu.");
   }
 
+  async function uretKategoriQrKod(kategoriSlug: string, kategoriAdi: string): Promise<void> {
+    const url: string = `${window.location.origin}/menu/day?category=${encodeURIComponent(kategoriSlug)}`;
+    const dataUrl: string = await QRCode.toDataURL(url, { margin: 2, width: 400 });
+    
+    // QR kodu yeni sekmede göster
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>QR Kod - ${kategoriAdi}</title>
+          <style>
+            body {
+              margin: 0;
+              padding: 40px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            }
+            .container {
+              background: white;
+              padding: 40px;
+              border-radius: 20px;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+              text-align: center;
+            }
+            h1 {
+              margin: 0 0 10px 0;
+              color: #2d3748;
+              font-size: 32px;
+            }
+            p {
+              margin: 0 0 30px 0;
+              color: #718096;
+              font-size: 16px;
+            }
+            img {
+              max-width: 400px;
+              width: 100%;
+              height: auto;
+              border-radius: 10px;
+            }
+            .url {
+              margin-top: 20px;
+              padding: 15px;
+              background: #f7fafc;
+              border-radius: 8px;
+              font-size: 12px;
+              color: #4a5568;
+              word-break: break-all;
+            }
+            .buttons {
+              margin-top: 20px;
+              display: flex;
+              gap: 10px;
+              justify-content: center;
+            }
+            button {
+              padding: 12px 24px;
+              border: none;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.3s;
+            }
+            .print-btn {
+              background: #667eea;
+              color: white;
+            }
+            .print-btn:hover {
+              background: #5568d3;
+            }
+            .download-btn {
+              background: #48bb78;
+              color: white;
+            }
+            .download-btn:hover {
+              background: #38a169;
+            }
+            @media print {
+              body {
+                background: white;
+              }
+              .buttons {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>${kategoriAdi}</h1>
+            <p>Menü QR Kodu</p>
+            <img src="${dataUrl}" alt="QR Kod" />
+            <div class="url">${url}</div>
+            <div class="buttons">
+              <button class="print-btn" onclick="window.print()">🖨️ Yazdır</button>
+              <button class="download-btn" onclick="downloadQR()">⬇️ İndir</button>
+            </div>
+          </div>
+          <script>
+            function downloadQR() {
+              const link = document.createElement('a');
+              link.download = 'qr-${kategoriSlug}.png';
+              link.href = '${dataUrl}';
+              link.click();
+            }
+          </script>
+        </body>
+        </html>
+      `);
+    }
+    setBasariMesaji(`${kategoriAdi} için QR kod oluşturuldu.`);
+  }
+
   const toplamUrun: number = menuItems.length;
   const toplamKategori: number = kategoriler.length;
 
@@ -688,21 +809,75 @@ export default function AdminScreen() {
 
       {sekme === "qr_uret" ? (
         <section className="admin__card">
-          <label className="admin__field">
-            <span className="admin__label">Masa numarası</span>
-            <input className="admin__input" value={masaNumarasi} onChange={(e) => setMasaNumarasi(e.target.value)} placeholder="Örn: 12" />
-          </label>
-          <button className="admin__primary" onClick={() => void uretQrKod()}>
-            QR Oluştur
-          </button>
-          {qrDataUrl ? (
-            <div className="admin__qr">
-              <img className="admin__qrImg" src={qrDataUrl} alt="QR Kod" />
-              <div className="admin__hint">
-                QR linki: <code>{`${window.location.origin}/menu?table=${encodeURIComponent(masaNumarasi.trim())}`}</code>
-              </div>
+          <h2>🔗 QR Kod Üretimi</h2>
+          
+          {/* Masa QR Kodu */}
+          <div style={{ marginBottom: "40px", padding: "20px", backgroundColor: "#f0f9ff", borderRadius: "12px", border: "1px solid #bfdbfe" }}>
+            <h3 style={{ marginTop: 0, color: "#1e40af" }}>Masa QR Kodu</h3>
+            <div className="admin__hint" style={{ marginBottom: "15px" }}>
+              Masa numarasına özel QR kod oluşturun
             </div>
-          ) : null}
+            <label className="admin__field">
+              <span className="admin__label">Masa numarası</span>
+              <input className="admin__input" value={masaNumarasi} onChange={(e) => setMasaNumarasi(e.target.value)} placeholder="Örn: 12" />
+            </label>
+            <button className="admin__primary" onClick={() => void uretQrKod()}>
+              📱 Masa QR Oluştur
+            </button>
+            {qrDataUrl ? (
+              <div className="admin__qr">
+                <img className="admin__qrImg" src={qrDataUrl} alt="QR Kod" />
+                <div className="admin__hint">
+                  QR linki: <code>{`${window.location.origin}/menu?table=${encodeURIComponent(masaNumarasi.trim())}`}</code>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Kategori QR Kodları */}
+          <div style={{ padding: "20px", backgroundColor: "#fef3c7", borderRadius: "12px", border: "1px solid #fde68a" }}>
+            <h3 style={{ marginTop: 0, color: "#92400e" }}>Kategori QR Kodları</h3>
+            <div className="admin__hint" style={{ marginBottom: "15px" }}>
+              Her kategori için ayrı QR kod oluşturun. QR kod tarandığında direkt o kategoriye gider.
+            </div>
+            
+            {kategoriler.filter(k => k.active).length === 0 ? (
+              <div className="admin__hint">Henüz aktif kategori yok.</div>
+            ) : (
+              <div className="admin__list" role="list">
+                {kategoriler.filter(k => k.active).map((k) => (
+                  <div key={k.id} className="admin__listRow" role="listitem">
+                    <div className="admin__listTitle">{k.nameTR}</div>
+                    <div className="admin__listMeta">
+                      <span className="admin__tags">{k.slug}</span>
+                      <button 
+                        className="admin__secondary admin__inlineBtn" 
+                        onClick={() => void uretKategoriQrKod(k.slug, k.nameTR)}
+                        style={{ backgroundColor: "#f59e0b", color: "white" }}
+                      >
+                        📱 QR Üret
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Genel Menü QR */}
+          <div style={{ marginTop: "30px", padding: "20px", backgroundColor: "#f0fdf4", borderRadius: "12px", border: "1px solid #bbf7d0" }}>
+            <h3 style={{ marginTop: 0, color: "#166534" }}>Genel Menü QR</h3>
+            <div className="admin__hint" style={{ marginBottom: "15px" }}>
+              Tüm kategorileri gösteren ana menü QR kodu
+            </div>
+            <button 
+              className="admin__primary" 
+              onClick={() => void uretKategoriQrKod("tum-menu", "Tam Menü")}
+              style={{ backgroundColor: "#10b981" }}
+            >
+              📱 Ana Menü QR Oluştur
+            </button>
+          </div>
         </section>
       ) : null}
 
