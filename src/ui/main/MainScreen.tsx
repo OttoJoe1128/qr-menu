@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./MainScreen.css";
+import AdminScreen from "../admin/AdminScreen";
 
 import breakfastImg from "../../assets/images/breakfast.jpeg";
 import recommendImg from "../../assets/images/recommend.jpeg";
@@ -10,6 +11,8 @@ export default function MainScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
   const adminKisayoluAnahtari: string = "qr_menu_admin_kisayolu";
+  const [aktifSayfa, setAktifSayfa] = useState<string | null>(null);
+
   const isAdminKisayoluGorunur: boolean = useMemo((): boolean => {
     const isAdmin: string | null = aramaParametreleri.get("admin");
     if (isAdmin === "1") {
@@ -27,10 +30,20 @@ export default function MainScreen() {
     localStorage.setItem(adminKisayoluAnahtari, "1");
   }, [aramaParametreleri, adminKisayoluAnahtari]);
 
+  useEffect((): void => {
+    const sayfa: string | null = aramaParametreleri.get("sayfa");
+    setAktifSayfa(sayfa);
+  }, [aramaParametreleri]);
+
+  // Admin paneli göster
+  if (aktifSayfa === "admin") {
+    return <AdminScreen />;
+  }
+
   return (
     <div className="main-grid">
       {isAdminKisayoluGorunur ? (
-        <button className="admin-fab" onClick={() => navigate("/admin")}>
+        <button className="admin-fab" onClick={() => navigate("/?sayfa=admin")}>
           Admin Paneli
         </button>
       ) : null}

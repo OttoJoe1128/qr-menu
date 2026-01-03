@@ -3,9 +3,10 @@ import QRCode from "qrcode";
 import { db, ChangeSet, MenuCategory, MenuItem, MenuRating, Recipe, TemplateId } from "../../db";
 import { publishChangeSet } from "../../admin/adminActions";
 import { AdminSession } from "../../admin/admin.types";
+import { fullMenuKategoriler, fullMenuItems } from "../../dev/fullMenuData";
 import "./AdminScreen.css";
 
-type AdminTab = "kategori" | "urun_ekle" | "urun_liste" | "puanlar" | "qr_uret";
+type AdminTab = "kategori" | "urun_ekle" | "urun_liste" | "puanlar" | "qr_uret" | "veri_yukle";
 
 function createAdminSession(): AdminSession {
   const issuedAt: number = Date.now();
@@ -388,6 +389,13 @@ export default function AdminScreen() {
         <div className="admin__subtitle">
           Kategori: {toplamKategori} • Ürün: {toplamUrun}
         </div>
+        <button 
+          className="admin__secondary" 
+          onClick={() => window.location.href = "/"}
+          style={{ position: "absolute", right: "20px", top: "20px" }}
+        >
+          ← Ana Sayfa
+        </button>
       </header>
 
       <nav className="admin__tabs">
@@ -405,6 +413,9 @@ export default function AdminScreen() {
         </button>
         <button className={`admin__tab ${sekme === "qr_uret" ? "admin__tab--active" : ""}`} onClick={() => setSekme("qr_uret")}>
           QR Üret
+        </button>
+        <button className={`admin__tab ${sekme === "veri_yukle" ? "admin__tab--active" : ""}`} onClick={() => setSekme("veri_yukle")}>
+          📦 Veri Yükle
         </button>
       </nav>
 
@@ -624,7 +635,129 @@ export default function AdminScreen() {
           ) : null}
         </section>
       ) : null}
+
+      {sekme === "veri_yukle" ? (
+        <VeriYukleTab 
+          adminSession={adminSession}
+          onSuccess={async () => {
+            setBasariMesaji("Veriler başarıyla yüklendi!");
+            await yukleAdminVeri();
+            setSekme("urun_liste");
+          }}
+          onError={(msg) => setHataMesaji(msg)}
+        />
+      ) : null}
     </div>
   );
+}
+
+function VeriYukleTab({ adminSession, onSuccess, onError }: { adminSession: AdminSession, onSuccess: () => void, onError: (msg: string) => void }) {
+  const [isYukleniyor, setIsYukleniyor] = useState(false);
+
+  async function yukleFullMenu(): Promise<void> {
+    setIsYukleniyor(true);
+    try {
+      // Import seed fonksiyonunu dinamik olarak çağıramayız, bu yüzden inline yazıyoruz
+      await seedFullMenuToBrowser(adminSession);
+      onSuccess();
+    } catch (err: any) {
+      onError(err.message ?? "Veri yükleme başarısız.");
+    } finally {
+      setIsYukleniyor(false);
+    }
+  }
+
+  return (
+    <section className="admin__card">
+      <h2>📦 Tam Menü Verilerini Yükle</h2>
+      <div className="admin__hint">
+        <strong>Bu işlem browser veritabanına tüm menü verilerini yükler:</strong>
+        <ul style={{ marginTop: "10px", marginLeft: "20px" }}>
+          <li><strong>10 Kategori:</strong> Kahvaltı, Çorbalar, Başlangıçlar, Salatalar, Phuket İmza Yemekleri, Deniz Ürünleri, Batı Ana Yemekleri, Comfort Food, Makarnalar, Tatlılar</li>
+          <li><strong>50 Recipe:</strong> Her ürün için detaylı malzemeler, adımlar, eşleştirmeler ve şef notları</li>
+          <li><strong>50 Menü Öğesi:</strong> Tüm kategorilere dağıtılmış ürünler</li>
+        </ul>
+        <p style={{ marginTop: "10px", color: "#666" }}>
+          ⚠️ Bu işlem biraz zaman alabilir (yaklaşık 10-15 saniye). Lütfen bekleyin...
+        </p>
+      </div>
+      <button 
+        className="admin__primary" 
+        onClick={() => void yukleFullMenu()}
+        disabled={isYukleniyor}
+        style={{ marginTop: "20px" }}
+      >
+        {isYukleniyor ? "⏳ Yükleniyor... (Lütfen bekleyin)" : "🚀 Tüm Menüyü Yükle (50 Ürün)"}
+      </button>
+    </section>
+  );
+}
+
+async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> {
+  const simdi = Date.now();
+  
+  // 1. Kategorileri ekle
+  for (const kat of fullMenuKategoriler) {
+    const cs: ChangeSet = {
+      id: globalThis.crypto.randomUUID(),
+      status: "approved",
+      patches: [{ 
+        type: "ADD_CATEGORY", 
+        payload: { ...kat, active: true, createdAt: simdi, updatedAt: simdi } 
+      }],
+      createdAt: simdi,
+      approvedAt: simdi,
+      approvedBy: adminSession.adminId,
+    };
+    await db.changeSets.put(cs);
+    await publishChangeSet(adminSession, cs.id);
+  }
+
+  // 2. Tüm 50 menü öğesini ve recipe'leri ekle
+  for (const urun of fullMenuItems) {
+    const recipeId = globalThis.crypto.randomUUID();
+    const menuItemId = globalThis.crypto.randomUUID();
+    
+    const cs: ChangeSet = {
+      id: globalThis.crypto.randomUUID(),
+      status: "approved",
+      patches: [
+        { 
+          type: "ADD_RECIPE", 
+          payload: {
+            id: recipeId,
+            heroImage: urun.heroImage,
+            description: urun.description,
+            ingredients: urun.ingredients,
+            steps: urun.steps,
+            pairings: urun.pairings,
+            chefNotes: urun.chefNotes,
+            createdAt: simdi,
+            updatedAt: simdi,
+          } 
+        },
+        { 
+          type: "ADD_MENU_ITEM", 
+          payload: {
+            id: menuItemId,
+            nameTR: urun.nameTR,
+            nameEN: urun.nameEN,
+            templateId: "food_detail_v1" as TemplateId,
+            categoryId: urun.categoryId,
+            recipeId: recipeId,
+            tags: urun.tags,
+            available: true,
+            createdAt: simdi,
+            updatedAt: simdi,
+          } 
+        }
+      ],
+      createdAt: simdi,
+      approvedAt: simdi,
+      approvedBy: adminSession.adminId,
+    };
+    await db.changeSets.put(cs);
+    await publishChangeSet(adminSession, cs.id);
+  }
 }
 
