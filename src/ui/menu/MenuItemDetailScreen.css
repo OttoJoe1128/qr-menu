@@ -8,21 +8,33 @@
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 10px 0;
+  background: color-mix(in srgb, var(--renk-arka-plan) 86%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .detay__back {
-  border: 1px solid #e6e6e6;
-  background: white;
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
   padding: 8px 10px;
   border-radius: 10px;
   cursor: pointer;
 }
 
+.detay__back:hover {
+  border-color: var(--renk-kenar-sert);
+}
+
 .detay__hero {
-  border: 1px solid #ededed;
-  border-radius: 16px;
-  background: white;
+  border: 1px solid var(--renk-kenar);
+  border-radius: var(--radius-kart);
+  background: var(--renk-kart);
   overflow: hidden;
+  box-shadow: var(--golge-kart);
 }
 
 .detay__heroImg {
@@ -39,12 +51,12 @@
 .detay__title {
   font-size: 20px;
   font-weight: 800;
-  color: #111;
+  color: var(--renk-yazi);
 }
 
 .detay__subtitle {
   margin-top: 6px;
-  color: #444;
+  color: var(--renk-yazi-ikincil);
   display: flex;
   gap: 6px;
   align-items: baseline;
@@ -52,12 +64,12 @@
 
 .detay__ratingValue {
   font-weight: 800;
-  color: #111;
+  color: var(--renk-yazi);
 }
 
 .detay__ratingText {
   font-size: 12px;
-  color: #666;
+  color: var(--renk-yazi-ikincil);
 }
 
 .detay__rate {
@@ -70,21 +82,22 @@
 
 .detay__rateLabel {
   font-size: 13px;
-  color: #444;
+  color: var(--renk-yazi-ikincil);
 }
 
 .detay__rateBtn {
-  border: 1px solid #e6e6e6;
-  background: white;
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
   padding: 6px 10px;
   border-radius: 10px;
   cursor: pointer;
 }
 
 .detay__rateBtn--active {
-  border-color: #111;
-  background: #111;
-  color: white;
+  border-color: transparent;
+  background: var(--renk-vurgu);
+  color: var(--renk-vurgu-yazi);
 }
 
 .detay__alert {
@@ -114,29 +127,31 @@
 }
 
 .detay__tab {
-  border: 1px solid #e6e6e6;
-  background: white;
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
   padding: 8px 10px;
   border-radius: 12px;
   cursor: pointer;
 }
 
 .detay__tab--active {
-  background: #111;
-  color: #fff;
-  border-color: #111;
+  background: var(--renk-vurgu);
+  color: var(--renk-vurgu-yazi);
+  border-color: transparent;
 }
 
 .detay__content {
   margin-top: 12px;
-  border: 1px solid #ededed;
-  border-radius: 16px;
-  background: white;
+  border: 1px solid var(--renk-kenar);
+  border-radius: var(--radius-kart);
+  background: var(--renk-kart);
   padding: 14px;
+  box-shadow: var(--golge-kart);
 }
 
 .detay__text {
-  color: #222;
+  color: var(--renk-yazi);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -144,14 +159,14 @@
 .detay__list {
   margin: 0;
   padding-left: 18px;
-  color: #222;
+  color: var(--renk-yazi);
   font-size: 14px;
   line-height: 1.5;
 }
 
 .detay__hint {
   margin-top: 14px;
-  color: #666;
+  color: var(--renk-yazi-ikincil);
   font-size: 14px;
 }
 
