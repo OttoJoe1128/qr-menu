@@ -6,6 +6,8 @@
 
 .detay__header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 12px;
   position: sticky;
@@ -14,6 +16,22 @@
   padding: 10px 0;
   background: color-mix(in srgb, var(--renk-arka-plan) 86%, transparent);
   backdrop-filter: blur(10px);
+}
+
+.detay__headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detay__pill {
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 13px;
 }
 
 .detay__back {

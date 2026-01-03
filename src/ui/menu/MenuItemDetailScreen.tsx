@@ -9,6 +9,7 @@ export default function MenuItemDetailScreen() {
   const navigate = useNavigate();
   const params = useParams();
   const menuItemId: string | undefined = params.id;
+  const masaNumarasiAnahtari: string = "qr_menu_table_number";
 
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
@@ -17,6 +18,15 @@ export default function MenuItemDetailScreen() {
   const [sekme, setSekme] = useState<DetaySekmesi>("aciklama");
   const [hataMesaji, setHataMesaji] = useState<string | null>(null);
   const [basariMesaji, setBasariMesaji] = useState<string | null>(null);
+
+  const masaNumarasi: string | null = useMemo((): string | null => {
+    const kayitli: string | null = localStorage.getItem(masaNumarasiAnahtari);
+    if (!kayitli) {
+      return null;
+    }
+    const temiz: string = kayitli.trim();
+    return temiz.length > 0 ? temiz : null;
+  }, [masaNumarasiAnahtari]);
 
   useEffect((): (() => void) => {
     let isIptalEdildi: boolean = false;
@@ -119,9 +129,12 @@ export default function MenuItemDetailScreen() {
     return (
       <div className="detay">
         <div className="detay__header">
-          <button className="detay__back" onClick={() => geriDon()}>
-            ← Geri
-          </button>
+          <div className="detay__headerLeft">
+            <button className="detay__back" onClick={() => geriDon()}>
+              ← Geri
+            </button>
+          </div>
+          {masaNumarasi ? <div className="detay__pill">Masa {masaNumarasi}</div> : null}
         </div>
         <div className="detay__hint">Yükleniyor...</div>
       </div>
@@ -132,9 +145,12 @@ export default function MenuItemDetailScreen() {
     return (
       <div className="detay">
         <div className="detay__header">
-          <button className="detay__back" onClick={() => geriDon()}>
-            ← Geri
-          </button>
+          <div className="detay__headerLeft">
+            <button className="detay__back" onClick={() => geriDon()}>
+              ← Geri
+            </button>
+          </div>
+          {masaNumarasi ? <div className="detay__pill">Masa {masaNumarasi}</div> : null}
         </div>
         <div className="detay__hint">{hataMesaji ?? "Ürün bulunamadı."}</div>
       </div>
@@ -144,12 +160,18 @@ export default function MenuItemDetailScreen() {
   return (
     <div className="detay">
       <div className="detay__header">
-        <button className="detay__back" onClick={() => geriDon()}>
-          ← Geri
-        </button>
-        <button className="detay__back" onClick={() => navigate("/menu")}>
-          Kategoriler
-        </button>
+        <div className="detay__headerLeft">
+          <button className="detay__back" onClick={() => geriDon()}>
+            ← Geri
+          </button>
+          <button className="detay__back" onClick={() => navigate("/menu")}>
+            Kategoriler
+          </button>
+          <button className="detay__back" onClick={() => navigate("/")}>
+            Ana Ekran
+          </button>
+        </div>
+        {masaNumarasi ? <div className="detay__pill">Masa {masaNumarasi}</div> : null}
       </div>
 
       <div className="detay__hero">

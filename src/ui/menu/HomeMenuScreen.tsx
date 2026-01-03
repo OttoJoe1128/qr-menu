@@ -13,6 +13,7 @@ export default function HomeMenuScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
   const adminKisayoluAnahtari: string = "qr_menu_admin_kisayolu";
+  const [aramaMetni, setAramaMetni] = useState<string>("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [kategoriler, setKategoriler] = useState<MenuCategory[]>([]);
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
@@ -70,6 +71,18 @@ export default function HomeMenuScreen() {
     return sortMenuKategoriOzetleri(ozetler, siralamaModu);
   }, [menuItems, siralamaModu]);
 
+  const filtreliKategoriOzetleri = useMemo(() => {
+    const arama: string = aramaMetni.trim().toLocaleLowerCase("tr-TR");
+    if (arama.length === 0) {
+      return kategoriOzetleri;
+    }
+    return kategoriOzetleri.filter((o) => {
+      const baslik: string = o.baslik.toLocaleLowerCase("tr-TR");
+      const anahtar: string = o.anahtar.toLocaleLowerCase("tr-TR");
+      return baslik.includes(arama) || anahtar.includes(arama);
+    });
+  }, [kategoriOzetleri, aramaMetni]);
+
   return (
     <div className="home-menu">
       <div className="menu-header">
@@ -87,6 +100,15 @@ export default function HomeMenuScreen() {
           </div>
         </div>
         <div className="menu-controls">
+          <label className="menu-control menu-control--grow">
+            <span className="menu-control-label">Ara</span>
+            <input
+              className="menu-input"
+              value={aramaMetni}
+              onChange={(e) => setAramaMetni(e.target.value)}
+              placeholder="Kategori ara (örn: içecek, tatlı...)"
+            />
+          </label>
           <label className="menu-control">
             <span className="menu-control-label">Sıralama</span>
             <select
@@ -109,9 +131,11 @@ export default function HomeMenuScreen() {
           Menü henüz hazır değil. (Veri yok) İsterseniz `src/dev/seed.ts` ile örnek veri
           oluşturabilirsiniz.
         </div>
+      ) : filtreliKategoriOzetleri.length === 0 ? (
+        <div className="menu-empty">Aramaya uygun kategori bulunamadı.</div>
       ) : (
         <div className="menu-list" role="list">
-          {kategoriOzetleri.map((ozet) => (
+          {filtreliKategoriOzetleri.map((ozet) => (
             <button
               key={ozet.anahtar}
               className="menu-row"

@@ -66,6 +66,7 @@
   display: flex;
   gap: 10px;
   margin-top: 6px;
+  flex-wrap: wrap;
 }
 
 .day-control {
@@ -74,9 +75,23 @@
   gap: 10px;
 }
 
+.day-control--grow {
+  flex: 1 1 280px;
+}
+
 .day-control-label {
   font-size: 13px;
   color: var(--renk-yazi-ikincil);
+}
+
+.day-input {
+  width: 100%;
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 8px 10px;
+  border-radius: 10px;
+  outline: none;
 }
 
 .day-select {

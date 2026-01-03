@@ -8,6 +8,63 @@
   min-height: 100svh;
 }
 
+.main-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 2px 4px 2px;
+}
+
+.main-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.main-header__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--renk-yazi);
+  letter-spacing: -0.2px;
+}
+
+.main-header__subtitle {
+  font-size: 13px;
+  color: var(--renk-yazi-ikincil);
+  line-height: 1.35;
+}
+
+.main-header__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.main-pill {
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.main-secondary {
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 7px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.main-secondary:hover {
+  border-color: var(--renk-kenar-sert);
+}
+
 .menu-card {
   position: relative;
   background-size: cover;
