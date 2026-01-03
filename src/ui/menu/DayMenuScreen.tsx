@@ -20,6 +20,7 @@ export default function DayMenuScreen() {
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
   const [seciliKategori, setSeciliKategori] = useState<string | null>(null);
   const [urunSiralamaModu, setUrunSiralamaModu] = useState<MenuUrunSiralamaModu>("guncellenme_azalan");
+  const [aramaMetni, setAramaMetni] = useState<string>("");
 
   useEffect((): (() => void) => {
     let isIptalEdildi: boolean = false;
@@ -144,6 +145,19 @@ export default function DayMenuScreen() {
     }));
   }, [filtrelenmisUrunler, recipeMap, puanOrtalamaMap]);
 
+  const filtreliUrunKartlari = useMemo((): Array<{ item: MenuItem; recipe: Recipe | null; puan: number }> => {
+    const arama: string = aramaMetni.trim().toLocaleLowerCase("tr-TR");
+    if (arama.length === 0) {
+      return urunKartlari;
+    }
+    return urunKartlari.filter(({ item, recipe }) => {
+      const ad: string = item.nameTR.toLocaleLowerCase("tr-TR");
+      const etiket: string = item.tags.join(" ").toLocaleLowerCase("tr-TR");
+      const aciklama: string = (recipe?.description ?? "").toLocaleLowerCase("tr-TR");
+      return ad.includes(arama) || etiket.includes(arama) || aciklama.includes(arama);
+    });
+  }, [urunKartlari, aramaMetni]);
+
   async function kaydetPuan(menuItemId: string, score: number): Promise<void> {
     const tableSessionId: string | null = localStorage.getItem("qr_menu_table_session_id");
     const mevcut: MenuRating | undefined = await db.ratings
@@ -195,6 +209,15 @@ export default function DayMenuScreen() {
       </div>
 
       <div className="day-controls">
+        <label className="day-control day-control--grow">
+          <span className="day-control-label">Ara</span>
+          <input
+            className="day-input"
+            value={aramaMetni}
+            onChange={(e) => setAramaMetni(e.target.value)}
+            placeholder="Ürün ara (örn: tavuk, salata...)"
+          />
+        </label>
         <label className="day-control">
           <span className="day-control-label">Sıralama</span>
           <select
@@ -215,9 +238,11 @@ export default function DayMenuScreen() {
         <div className="menu-placeholder">Henüz bir kategori yok.</div>
       ) : filtrelenmisUrunler.length === 0 ? (
         <div className="menu-placeholder">Bu kategoride ürün bulunamadı.</div>
+      ) : filtreliUrunKartlari.length === 0 ? (
+        <div className="menu-placeholder">Aramaya uygun ürün bulunamadı.</div>
       ) : (
         <div className="day-grid" role="list">
-          {urunKartlari.map(({ item, recipe, puan }) => (
+          {filtreliUrunKartlari.map(({ item, recipe, puan }) => (
             <div key={item.id} className="day-card" role="listitem">
               <button className="day-card-hero" onClick={() => navigate(`/menu/item/${encodeURIComponent(item.id)}`)}>
                 {recipe?.heroImage ? (

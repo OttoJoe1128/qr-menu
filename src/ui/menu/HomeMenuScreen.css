@@ -62,9 +62,23 @@
   gap: 10px;
 }
 
+.menu-control--grow {
+  flex: 1 1 280px;
+}
+
 .menu-control-label {
   font-size: 13px;
   color: var(--renk-yazi-ikincil);
+}
+
+.menu-input {
+  width: 100%;
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 8px 10px;
+  border-radius: 10px;
+  outline: none;
 }
 
 .menu-select {
