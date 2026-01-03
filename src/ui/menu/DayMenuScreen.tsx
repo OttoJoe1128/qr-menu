@@ -13,6 +13,7 @@ type MenuUrunSiralamaModu = "guncellenme_azalan" | "isim_artan" | "puan_azalan";
 export default function DayMenuScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri, setAramaParametreleri] = useSearchParams();
+  const masaNumarasiAnahtari: string = "qr_menu_table_number";
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [kategoriler, setKategoriler] = useState<MenuCategory[]>([]);
   const [puanlar, setPuanlar] = useState<MenuRating[]>([]);
@@ -158,6 +159,15 @@ export default function DayMenuScreen() {
     });
   }, [urunKartlari, aramaMetni]);
 
+  const masaNumarasi: string | null = useMemo((): string | null => {
+    const kayitli: string | null = localStorage.getItem(masaNumarasiAnahtari);
+    if (!kayitli) {
+      return null;
+    }
+    const temiz: string = kayitli.trim();
+    return temiz.length > 0 ? temiz : null;
+  }, [masaNumarasiAnahtari]);
+
   async function kaydetPuan(menuItemId: string, score: number): Promise<void> {
     const tableSessionId: string | null = localStorage.getItem("qr_menu_table_session_id");
     const mevcut: MenuRating | undefined = await db.ratings
@@ -183,10 +193,15 @@ export default function DayMenuScreen() {
   return (
     <div className="day-menu">
       <div className="day-header">
-        <h1 className="day-title">Günün Menüsü</h1>
-        <button className="day-secondary" onClick={() => navigate("/menu")}>
-          Kategoriler
-        </button>
+        <div className="day-headerLeft">
+          <h1 className="day-title">Günün Menüsü</h1>
+        </div>
+        <div className="day-headerRight">
+          {masaNumarasi ? <div className="day-pill">Masa {masaNumarasi}</div> : null}
+          <button className="day-secondary" onClick={() => navigate("/menu")}>
+            Kategoriler
+          </button>
+        </div>
       </div>
 
       <div className="category-list">
@@ -279,6 +294,18 @@ export default function DayMenuScreen() {
           ))}
         </div>
       )}
+
+      <nav className="alt-nav" aria-label="Alt Menü">
+        <button className="alt-nav__btn" onClick={() => navigate("/")}>
+          Ana Ekran
+        </button>
+        <button className="alt-nav__btn" onClick={() => navigate("/menu")}>
+          Menü
+        </button>
+        <button className="alt-nav__btn alt-nav__btn--active" onClick={() => navigate("/menu/day")}>
+          Günün Menüsü
+        </button>
+      </nav>
     </div>
   );
 }

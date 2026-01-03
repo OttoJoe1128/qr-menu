@@ -2,6 +2,7 @@
   padding: 16px;
   max-width: 920px;
   margin: 0 auto;
+  padding-bottom: calc(86px + env(safe-area-inset-bottom));
 }
 
 .day-header {
@@ -15,6 +16,28 @@
   padding: 10px 0;
   background: color-mix(in srgb, var(--renk-arka-plan) 86%, transparent);
   backdrop-filter: blur(10px);
+}
+
+.day-headerLeft {
+  display: flex;
+  align-items: center;
+}
+
+.day-headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.day-pill {
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 13px;
 }
 
 .day-title {
@@ -263,4 +286,35 @@
   .day-card-imgPlaceholder {
     height: 200px;
   }
+}
+
+.alt-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  background: color-mix(in srgb, var(--renk-arka-plan) 82%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--renk-kenar);
+}
+
+.alt-nav__btn {
+  border: 1px solid var(--renk-kenar);
+  background: var(--renk-kart);
+  color: var(--renk-yazi);
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  min-width: 92px;
+}
+
+.alt-nav__btn--active {
+  border-color: transparent;
+  background: var(--renk-vurgu);
+  color: var(--renk-vurgu-yazi);
 }
