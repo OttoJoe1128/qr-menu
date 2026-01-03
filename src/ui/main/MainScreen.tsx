@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./MainScreen.css";
+import AdminScreen from "../admin/AdminScreen";
 
 import breakfastImg from "../../assets/images/breakfast.jpeg";
 import recommendImg from "../../assets/images/recommend.jpeg";
@@ -10,6 +11,8 @@ export default function MainScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
   const adminKisayoluAnahtari: string = "qr_menu_admin_kisayolu";
+  const [aktifSayfa, setAktifSayfa] = useState<string | null>(null);
+
   const masaNumarasiAnahtari: string = "qr_menu_table_number";
   const isAdminKisayoluGorunur: boolean = useMemo((): boolean => {
     const isAdmin: string | null = aramaParametreleri.get("admin");
