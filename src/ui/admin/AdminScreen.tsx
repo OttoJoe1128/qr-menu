@@ -5,7 +5,7 @@ import { publishChangeSet } from "../../admin/adminActions";
 import { AdminSession } from "../../admin/admin.types";
 import "./AdminScreen.css";
 
-type AdminTab = "kategori" | "urun_ekle" | "urun_liste" | "puanlar" | "qr_uret";
+type AdminTab = "kategori" | "urun_ekle" | "urun_liste" | "puanlar" | "qr_uret" | "veri_yukle";
 
 function createAdminSession(): AdminSession {
   const issuedAt: number = Date.now();
@@ -406,6 +406,9 @@ export default function AdminScreen() {
         <button className={`admin__tab ${sekme === "qr_uret" ? "admin__tab--active" : ""}`} onClick={() => setSekme("qr_uret")}>
           QR Üret
         </button>
+        <button className={`admin__tab ${sekme === "veri_yukle" ? "admin__tab--active" : ""}`} onClick={() => setSekme("veri_yukle")}>
+          📦 Veri Yükle
+        </button>
       </nav>
 
       {hataMesaji ? <div className="admin__alert admin__alert--error">{hataMesaji}</div> : null}
@@ -624,7 +627,166 @@ export default function AdminScreen() {
           ) : null}
         </section>
       ) : null}
+
+      {sekme === "veri_yukle" ? (
+        <VeriYukleTab 
+          adminSession={adminSession}
+          onSuccess={async () => {
+            setBasariMesaji("Veriler başarıyla yüklendi!");
+            await yukleAdminVeri();
+            setSekme("urun_liste");
+          }}
+          onError={(msg) => setHataMesaji(msg)}
+        />
+      ) : null}
     </div>
   );
+}
+
+function VeriYukleTab({ adminSession, onSuccess, onError }: { adminSession: AdminSession, onSuccess: () => void, onError: (msg: string) => void }) {
+  const [isYukleniyor, setIsYukleniyor] = useState(false);
+
+  async function yukleFullMenu(): Promise<void> {
+    setIsYukleniyor(true);
+    try {
+      // Import seed fonksiyonunu dinamik olarak çağıramayız, bu yüzden inline yazıyoruz
+      await seedFullMenuToBrowser(adminSession);
+      onSuccess();
+    } catch (err: any) {
+      onError(err.message ?? "Veri yükleme başarısız.");
+    } finally {
+      setIsYukleniyor(false);
+    }
+  }
+
+  return (
+    <section className="admin__card">
+      <h2>Örnek Menü Verilerini Yükle</h2>
+      <div className="admin__hint">
+        Bu işlem browser veritabanına tüm menü verilerini yükler:
+        <ul>
+          <li>10 Kategori</li>
+          <li>50 Recipe</li>
+          <li>50 Menü Öğesi</li>
+        </ul>
+      </div>
+      <button 
+        className="admin__primary" 
+        onClick={() => void yukleFullMenu()}
+        disabled={isYukleniyor}
+      >
+        {isYukleniyor ? "Yükleniyor..." : "🚀 Tüm Menüyü Yükle"}
+      </button>
+    </section>
+  );
+}
+
+async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> {
+  const simdi = Date.now();
+  
+  // Kategorileri ekle
+  const kategoriler = [
+    { id: "cat-kahvalti", nameTR: "Kahvaltı", nameEN: "Breakfast", slug: "kahvalti", sortOrder: 1 },
+    { id: "cat-corbalar", nameTR: "Çorbalar", nameEN: "Soups", slug: "corbalar", sortOrder: 2 },
+    { id: "cat-baslangiclar", nameTR: "Başlangıçlar & Atıştırmalıklar", nameEN: "Starters & Appetizers", slug: "baslangiclar-atistirmaliklar", sortOrder: 3 },
+    { id: "cat-salatalar", nameTR: "Salatalar", nameEN: "Salads", slug: "salatalar", sortOrder: 4 },
+    { id: "cat-phuket-imza", nameTR: "Phuket İmza Yemekleri", nameEN: "Phuket Signature Dishes", slug: "phuket-imza-yemekleri", sortOrder: 5 },
+    { id: "cat-deniz-urunleri", nameTR: "Deniz Ürünleri", nameEN: "Seafood", slug: "deniz-urunleri", sortOrder: 6 },
+    { id: "cat-bati-anayemekleri", nameTR: "Batı Ana Yemekleri", nameEN: "Western Main Courses", slug: "bati-anayemekleri", sortOrder: 7 },
+    { id: "cat-comfort-food", nameTR: "Comfort Food", nameEN: "Comfort Food", slug: "comfort-food", sortOrder: 8 },
+    { id: "cat-makarnalar", nameTR: "Makarnalar", nameEN: "Pasta", slug: "makarnalar", sortOrder: 9 },
+    { id: "cat-tatlilar", nameTR: "Tatlılar", nameEN: "Desserts", slug: "tatlilar", sortOrder: 10 },
+  ];
+
+  for (const kat of kategoriler) {
+    const cs: ChangeSet = {
+      id: globalThis.crypto.randomUUID(),
+      status: "approved",
+      patches: [{ 
+        type: "ADD_CATEGORY", 
+        payload: { ...kat, active: true, createdAt: simdi, updatedAt: simdi } 
+      }],
+      createdAt: simdi,
+      approvedAt: simdi,
+      approvedBy: adminSession.adminId,
+    };
+    await db.changeSets.put(cs);
+    await publishChangeSet(adminSession, cs.id);
+  }
+
+  // Menü öğelerini ve recipe'leri ekle (sadece birkaç örnek)
+  const ornekUrunler = [
+    {
+      categoryId: "cat-kahvalti",
+      nameTR: "Smashed Avocado on Sourdough",
+      nameEN: "Smashed Avocado on Sourdough",
+      description: "Kızarmış ekşi maya ekmeği üzerinde taze ezilmiş avokado, poşe yumurta ve beyaz peynir ile servis edilen modern sporcu kahvaltısı.",
+      ingredients: ["Ekşi maya ekmeği", "Taze avokado", "Poşe yumurta", "Beyaz peynir"],
+      steps: ["Ekmeği kızartın", "Avokadoyu ezin", "Yumurta poşe yapın", "Birleştirin"],
+      tags: ["avocado", "healthy"],
+    },
+    {
+      categoryId: "cat-corbalar",
+      nameTR: "Tom Yum Goong (Creamy)",
+      nameEN: "Tom Yum Goong (Creamy)",
+      description: "Büyük karidesler ve aromatik otlarla hazırlanan, süt ilavesiyle yumuşatılmış dünyaca ünlü acılı ve ekşili çorba.",
+      ingredients: ["Karides", "Limon otu", "Galangal", "Hindistan cevizi sütü"],
+      steps: ["Suyu kaynatın", "Karidesleri ekleyin", "Baharatları ekleyin"],
+      tags: ["thai", "soup", "spicy"],
+    },
+    {
+      categoryId: "cat-phuket-imza",
+      nameTR: "Pad Kra Pao Wagyu",
+      nameEN: "Pad Kra Pao Wagyu",
+      description: "Wagyu etinin taze fesleğen ve acı biberle wok tavada sotelenip, üzerine sahanda yumurta konulduğu premium sokak lezzeti.",
+      ingredients: ["Wagyu dana", "Thai fesleğeni", "Acı biber", "Sahanda yumurta"],
+      steps: ["Wok'u ısıtın", "Wagyu'yu soteleyin", "Fesleğen ekleyin", "Yumurta ile servis edin"],
+      tags: ["wagyu", "thai", "signature"],
+    },
+  ];
+
+  for (const urun of ornekUrunler) {
+    const recipeId = globalThis.crypto.randomUUID();
+    const menuItemId = globalThis.crypto.randomUUID();
+    
+    const cs: ChangeSet = {
+      id: globalThis.crypto.randomUUID(),
+      status: "approved",
+      patches: [
+        { 
+          type: "ADD_RECIPE", 
+          payload: {
+            id: recipeId,
+            heroImage: "/images/placeholder.jpg",
+            description: urun.description,
+            ingredients: urun.ingredients,
+            steps: urun.steps,
+            createdAt: simdi,
+            updatedAt: simdi,
+          } 
+        },
+        { 
+          type: "ADD_MENU_ITEM", 
+          payload: {
+            id: menuItemId,
+            nameTR: urun.nameTR,
+            nameEN: urun.nameEN,
+            templateId: "food_detail_v1",
+            categoryId: urun.categoryId,
+            recipeId: recipeId,
+            tags: urun.tags,
+            available: true,
+            createdAt: simdi,
+            updatedAt: simdi,
+          } 
+        }
+      ],
+      createdAt: simdi,
+      approvedAt: simdi,
+      approvedBy: adminSession.adminId,
+    };
+    await db.changeSets.put(cs);
+    await publishChangeSet(adminSession, cs.id);
+  }
 }
 
