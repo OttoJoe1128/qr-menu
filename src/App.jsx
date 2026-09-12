@@ -7,32 +7,56 @@ export default function App() {
   const [items, setItems] = useState([]);
   const [activeCategory, setActiveCategory] = useState("cat-kahvalti");
   const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState(null); // Modal state'i
+  const [selectedItem, setSelectedItem] = useState(null);
+  
+  // Admin Paneli Modu State'i
+  const [isAdmin, setIsAdmin] = useState(window.location.search.includes("admin=true"));
+  const [editingPrice, setEditingPrice] = useState({});
 
   useEffect(() => {
-    async function loadApp() {
-      await initCore();
-      const cats = await db.categories.toArray();
-      const rawItems = await db.menuItems.toArray();
-      const recipes = await db.recipes.toArray();
-
-      const mergedItems = rawItems.map(item => {
-        const recipe = recipes.find(r => r.id === item.recipeId);
-        return {
-          ...item,
-          image: item.id.includes("humus") 
-            ? "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?w=600&q=80" 
-            : "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=600&q=80",
-          description: recipe ? recipe.description : "",
-        };
-      });
-
-      setCategories(cats.sort((a, b) => a.sortOrder - b.sortOrder));
-      setItems(mergedItems);
-      setLoading(false);
-    }
-    loadApp();
+    loadAppData();
   }, []);
+
+  async function loadAppData() {
+    setLoading(true);
+    await initCore();
+    const cats = await db.categories.toArray();
+    const rawItems = await db.menuItems.toArray();
+    const recipes = await db.recipes.toArray();
+
+    const mergedItems = rawItems.map(item => {
+      const recipe = recipes.find(r => r.id === item.recipeId);
+      return {
+        ...item,
+        image: item.id.includes("humus") 
+          ? "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?w=600&q=80" 
+          : "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=600&q=80",
+        description: recipe ? recipe.description : "",
+      };
+    });
+
+    setCategories(cats.sort((a, b) => a.sortOrder - b.sortOrder));
+    setItems(mergedItems);
+    
+    // Fiyat state'lerini başlangıç için doldur
+    const pricesMap = {};
+    rawItems.forEach(i => pricesMap[i.id] = i.price);
+    setEditingPrice(pricesMap);
+
+    setLoading(false);
+  }
+
+  // Admin: Fiyat Güncelleme Fonksiyonu
+  async function handlePriceChange(itemId, newPrice) {
+    setEditingPrice(prev => ({ ...prev, [itemId]: Number(newPrice) }));
+  }
+
+  async function savePriceToDB(itemId) {
+    const updatedPrice = editingPrice[itemId];
+    await db.menuItems.update(itemId, { price: updatedPrice, updatedAt: Date.now() });
+    alert("Fiyat veritabanında başarıyla güncellendi!");
+    loadAppData();
+  }
 
   if (loading) {
     return (
@@ -42,11 +66,75 @@ export default function App() {
     );
   }
 
+  // ==========================================
+  // GÖSTERMEYE DEĞER: ADMIN PANELİ GÖRÜNÜMÜ
+  // ==========================================
+  if (isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-6 font-sans">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+            <div>
+              <h1 className="text-2xl font-bold">The Brook — Restoran Yönetim Paneli</h1>
+              <p className="text-sm text-gray-400">Anlık fiyat ve menü kontrolü (SaaS Admin)</p>
+            </div>
+            <button 
+              onClick={() => { setIsAdmin(false); window.history.replaceState({}, '', window.location.pathname); }}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+            >
+              Müşteri Menüsüne Dön
+            </button>
+          </div>
+
+          <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <h2 className="text-lg font-bold mb-4 text-orange-400">Ürün Fiyat Yönetimi</h2>
+            <div className="space-y-4">
+              {items.map(item => (
+                <div key={item.id} className="flex items-center justify-between bg-gray-900/50 p-4 rounded-xl border border-gray-700/50">
+                  <div>
+                    <h3 className="font-bold text-white">{item.nameTR}</h3>
+                    <span className="text-xs text-gray-400">ID: {item.id}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="number"
+                      value={editingPrice[item.id] || 0}
+                      onChange={(e) => handlePriceChange(item.id, e.target.value)}
+                      className="bg-gray-800 border border-gray-600 text-white px-3 py-2 rounded-lg w-28 text-right font-bold focus:outline-none focus:border-orange-500"
+                    />
+                    <span className="text-gray-400 font-bold">₺</span>
+                    <button 
+                      onClick={() => savePriceToDB(item.id)}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-md"
+                    >
+                      Kaydet
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // MÜŞTERİ MENÜSÜ GÖRÜNÜMÜ
+  // ==========================================
   const filteredItems = items.filter(item => item.categoryId === activeCategory);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans relative">
       
+      {/* Gizli Admin Giriş Butonu (Sağ üst köşe) */}
+      <button 
+        onClick={() => { setIsAdmin(true); window.history.replaceState({}, '', '?admin=true'); }}
+        className="fixed top-4 right-4 z-50 bg-black/70 hover:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg transition-all"
+      >
+        ⚙️ Yönetici Paneli
+      </button>
+
       {/* HEADER & KATEGORİLER */}
       <div className="bg-white shadow-sm sticky top-0 z-40">
         <div className="h-40 bg-cover bg-center" style={{backgroundImage: "url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&q=80')"}}>
@@ -82,7 +170,7 @@ export default function App() {
         {filteredItems.map((item) => (
           <div 
             key={item.id} 
-            onClick={() => setSelectedItem(item)} // Tıklanınca modali aç
+            onClick={() => setSelectedItem(item)}
             className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col active:scale-95 transition-transform cursor-pointer"
           >
             <div className="h-48 w-full overflow-hidden relative">
@@ -97,7 +185,6 @@ export default function App() {
             <div className="p-4 flex flex-col gap-2">
               <div className="flex justify-between items-start">
                 <h3 className="font-bold text-lg text-gray-900 leading-tight pr-4">{item.nameTR}</h3>
-                {/* DİNAMİK FİYAT */}
                 <span className="font-bold text-orange-600 text-lg whitespace-nowrap">{item.price} ₺</span>
               </div>
               <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
@@ -116,12 +203,11 @@ export default function App() {
         </button>
       </div>
 
-      {/* ÜRÜN DETAY MODALI (BOTTOM SHEET) */}
+      {/* ÜRÜN DETAY MODALI */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0">
           <div className="bg-white w-full max-w-md rounded-t-3xl overflow-hidden shadow-2xl animate-[slideUp_0.3s_ease-out] max-h-[90vh] overflow-y-auto hide-scrollbar">
             
-            {/* Modal Görsel & Kapat Butonu */}
             <div className="relative h-64">
               <img src={selectedItem.image} alt={selectedItem.nameTR} className="w-full h-full object-cover" />
               <button 
@@ -132,7 +218,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Modal İçerik */}
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold text-gray-900 pr-4">{selectedItem.nameTR}</h2>
@@ -141,7 +226,6 @@ export default function App() {
               
               <p className="text-gray-600 mb-6 leading-relaxed">{selectedItem.description}</p>
 
-              {/* Besin Değerleri (Yeni Özellik) */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-center">
                   <span className="block text-xs text-orange-500 font-bold uppercase mb-1">Kalori</span>
@@ -153,7 +237,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Alerjen Uyarıları */}
               {selectedItem.allergens && selectedItem.allergens.length > 0 && (
                 <div className="mb-8">
                   <span className="block text-xs font-bold text-gray-400 uppercase mb-3">⚠️ Alerjen Uyarısı</span>
@@ -167,7 +250,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* Aksiyon Butonu */}
               <button className="w-full bg-black text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform text-lg">
                 Sepete Ekle - {selectedItem.price} ₺
               </button>
@@ -176,7 +258,6 @@ export default function App() {
         </div>
       )}
 
-      {/* CSS Animasyonları */}
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
