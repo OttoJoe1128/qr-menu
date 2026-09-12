@@ -10,11 +10,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   
-  // Admin ve Mutfak Modu Sekmeleri ("items" | "kitchen" | "categories")
   const [isAdmin, setIsAdmin] = useState(window.location.search.includes("admin=true"));
   const [adminTab, setAdminTab] = useState("items"); 
   
-  // Düzenleme / Ekleme Form State'leri
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newItemData, setNewItemData] = useState({
@@ -49,7 +47,6 @@ export default function App() {
         description: recipe ? recipe.description : "",
         ingredients: recipe ? recipe.ingredients : [],
         steps: recipe ? recipe.steps : [],
-        chefNotes: recipe ? recipe.chefNotes : "",
       };
     });
 
@@ -59,12 +56,10 @@ export default function App() {
     setLoading(false);
   }
 
-  // Admin: Ürün ve Reçete Güncelleme
   async function handleSaveItem(e) {
     e.preventDefault();
     if (!editingItem) return;
 
-    // Menü Güncelleme
     await db.menuItems.update(editingItem.id, {
       nameTR: editingItem.nameTR,
       price: Number(editingItem.price),
@@ -72,7 +67,6 @@ export default function App() {
       updatedAt: Date.now()
     });
 
-    // Reçete ve Mutfak Detayları Güncelleme
     if (editingItem.recipeId) {
       await db.recipes.update(editingItem.recipeId, {
         heroImage: editingItem.image,
@@ -83,27 +77,21 @@ export default function App() {
       });
     }
 
-    alert("Ürün, görsel ve profesyonel mutfak reçetesi güncellendi!");
     setEditingItem(null);
     loadAppData();
   }
 
-  // Admin: Yeni Ürün ve Reçete Ekleme
   async function handleCreateItem(e) {
     e.preventDefault();
     const newId = "m-" + Date.now();
     const newRecipeId = "r-" + Date.now();
 
-    const ingredientList = newItemData.ingredients ? newItemData.ingredients.split(',').map(i => i.trim()) : [];
-    const stepList = newItemData.steps ? newItemData.steps.split('\n').filter(s => s.trim() !== '') : [];
-
     await db.recipes.put({
       id: newRecipeId,
       heroImage: newItemData.image || "https://images.unsplash.com/photo-1541529086526-db283c563270?w=600&q=80",
-      description: newItemData.description || "Profesyonel mutfak reçetesi.",
-      ingredients: ingredientList,
-      steps: stepList,
-      chefNotes: "Standart porsiyon kontrolüne dikkat ediniz.",
+      description: newItemData.description || "Yeni lezzet.",
+      ingredients: newItemData.ingredients ? newItemData.ingredients.split(',').map(i => i.trim()) : [],
+      steps: newItemData.steps ? newItemData.steps.split('\n').filter(s => s.trim() !== '') : [],
       createdAt: Date.now(),
       updatedAt: Date.now()
     });
@@ -118,20 +106,19 @@ export default function App() {
       calories: Number(newItemData.calories) || 350,
       protein: newItemData.protein || "20g",
       allergens: newItemData.allergens ? newItemData.allergens.split(',').map(a => a.trim()) : [],
-      tags: ["Yeni Eklenen"],
+      tags: ["Özel"],
       available: true,
       createdAt: Date.now(),
       updatedAt: Date.now()
     });
 
-    alert("Yeni ürün ve profesyonel mutfak reçetesi başarıyla eklendi!");
     setIsAddingNew(false);
     setNewItemData({ nameTR: "", categoryId: "cat-kahvalti", price: 0, calories: 0, protein: "", image: "", description: "", ingredients: "", steps: "", allergens: "" });
     loadAppData();
   }
 
   async function handleDeleteItem(itemId, recipeId) {
-    if (confirm("Bu ürünü ve mutfak reçetesini silmek istediğinize emin misiniz?")) {
+    if (confirm("Bu ürünü silmek istediğinize emin misiniz?")) {
       await db.menuItems.delete(itemId);
       if (recipeId) await db.recipes.delete(recipeId);
       loadAppData();
@@ -140,176 +127,184 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      <div className="flex h-screen items-center justify-center bg-slate-950">
+        <div className="relative flex items-center justify-center">
+          <div className="animate-ping absolute h-16 w-16 rounded-full bg-amber-500 opacity-20"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-amber-500 border-t-transparent"></div>
+        </div>
       </div>
     );
   }
 
   // ==========================================
-  // PROFESYONEL ADMIN & MUTFAK PANELİ
+  // MODERN ADMIN & MUTFAK PANELİ (GLASSMORPHISM)
   // ==========================================
   if (isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white p-4 sm:p-8 font-sans">
-        <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-8 font-sans antialiased selection:bg-amber-500 selection:text-black">
+        <div className="max-w-6xl mx-auto space-y-8">
           
-          {/* Header ve Sekme Geçişleri */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-gray-800 pb-4 gap-4">
+          {/* Top Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 p-6 rounded-3xl shadow-2xl gap-4">
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-white">The Brook — SaaS Yönetim & Mutfak</h1>
-              <p className="text-sm text-gray-400">İşletme Finans, Fiyat ve Aşçılar İçin Gramajlı Reçete Paneli</p>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold">SaaS Enterprise Node</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">The Brook — Command Center</h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <button 
                 onClick={() => setIsAddingNew(true)}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg transition-all"
+                className="flex-1 sm:flex-none bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black px-5 py-3 rounded-2xl text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95"
               >
-                + Yeni Ürün & Reçete Ekle
+                + Yeni Ürün Ekle
               </button>
               <button 
                 onClick={() => { setIsAdmin(false); window.history.replaceState({}, '', window.location.pathname); }}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg transition-all"
+                className="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-5 py-3 rounded-2xl text-sm transition-all border border-slate-700"
               >
-                Müşteri Menüsüne Dön
+                Menüye Dön
               </button>
             </div>
           </div>
 
-          {/* Sekmeler (Tabs) */}
-          <div className="flex gap-2 mb-6 border-b border-gray-800 pb-3">
+          {/* Navigation Tabs */}
+          <div className="flex gap-3 bg-slate-900/40 p-1.5 rounded-2xl border border-slate-800/50 w-fit">
             <button 
               onClick={() => setAdminTab("items")}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'items' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'}`}
+              className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'items' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-400 hover:text-white'}`}
             >
-              🍽️ Menü & Fiyat Yönetimi
+              🍽️ Katalog & Fiyatlar
             </button>
             <button 
               onClick={() => setAdminTab("kitchen")}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'kitchen' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'}`}
+              className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'kitchen' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-400 hover:text-white'}`}
             >
-              👨‍🍳 Mutfak Şefi Reçeteleri (Gramaj & Adımlar)
+              👨‍🍳 Mutfak & Gramaj Reçeteleri
             </button>
           </div>
 
-          {/* YENİ ÜRÜN EKLEME MODALI */}
+          {/* Modal: New Item */}
           {isAddingNew && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-              <div className="bg-gray-900 border border-gray-800 w-full max-w-2xl rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-                <h2 className="text-xl font-bold mb-4 text-orange-400">Yeni Ürün ve Profesyonel Mutfak Reçetesi</h2>
-                <form onSubmit={handleCreateItem} className="space-y-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+              <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+                <h2 className="text-xl font-black mb-6 text-amber-400 tracking-tight">Yeni Ürün & Operasyonel Reçete</h2>
+                <form onSubmit={handleCreateItem} className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Yemek Adı (TR)</label>
-                    <input type="text" required value={newItemData.nameTR} onChange={e => setNewItemData({...newItemData, nameTR: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" placeholder="Örn: İskender Kebap" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Yemek Adı (TR)</label>
+                    <input type="text" required value={newItemData.nameTR} onChange={e => setNewItemData({...newItemData, nameTR: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" placeholder="Örn: Trufflu Mantar Risotto" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Kategori</label>
-                      <select value={newItemData.categoryId} onChange={e => setNewItemData({...newItemData, categoryId: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none">
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
+                      <select value={newItemData.categoryId} onChange={e => setNewItemData({...newItemData, categoryId: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium">
                         {categories.map(c => <option key={c.id} value={c.id}>{c.nameTR}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Fiyat (₺)</label>
-                      <input type="number" required value={newItemData.price} onChange={e => setNewItemData({...newItemData, price: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Fiyat (₺)</label>
+                      <input type="number" required value={newItemData.price} onChange={e => setNewItemData({...newItemData, price: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Görsel URL (Unsplash vb.)</label>
-                    <input type="text" value={newItemData.image} onChange={e => setNewItemData({...newItemData, image: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" placeholder="https://images.unsplash.com/..." />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Görsel URL</label>
+                    <input type="text" value={newItemData.image} onChange={e => setNewItemData({...newItemData, image: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" placeholder="https://images.unsplash.com/..." />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Açıklama</label>
-                    <textarea rows="2" value={newItemData.description} onChange={e => setNewItemData({...newItemData, description: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" placeholder="Müşteri menüsünde görünecek kısa açıklama..." />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Açıklama</label>
+                    <textarea rows="2" value={newItemData.description} onChange={e => setNewItemData({...newItemData, description: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" placeholder="Menüde görünecek iştah kabartıcı açıklama..." />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-orange-400 uppercase mb-1">🥩 Mutfak İçeriği / Gramajlar (Virgülle ayırın)</label>
-                    <input type="text" value={newItemData.ingredients} onChange={e => setNewItemData({...newItemData, ingredients: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" placeholder="200g Dana Bonfile, 50g Tereyağı, 150g Yoğurt" />
+                    <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">🥩 Mutfak Malzemeleri & Gramajlar (Virgülle ayırın)</label>
+                    <input type="text" value={newItemData.ingredients} onChange={e => setNewItemData({...newItemData, ingredients: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" placeholder="180g Arborio Pirinci, 40g Parmesan, 10ml Truf Yağı" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-orange-400 uppercase mb-1">👨‍🍳 Aşçılar İçin Hazırlık Adımları (Her satıra bir adım)</label>
-                    <textarea rows="3" value={newItemData.steps} onChange={e => setNewItemData({...newItemData, steps: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" placeholder="1. Eti mühürleyin&#10;2. Sosu ekleyin" />
+                    <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">👨‍🍳 Hazırlık Adımları (Her satıra bir adım)</label>
+                    <textarea rows="3" value={newItemData.steps} onChange={e => setNewItemData({...newItemData, steps: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" placeholder="1. Pirinci zeytinyağında soteleyin&#10;2. Sıcak et suyu ekleyerek yedirin" />
                   </div>
-                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
-                    <button type="button" onClick={() => setIsAddingNew(false)} className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-5 py-2.5 rounded-xl font-bold">İptal</button>
-                    <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg">Ürünü ve Reçeteyi Kaydet</button>
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onClick={() => setIsAddingNew(false)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-6 py-3 rounded-2xl font-bold transition-all">İptal</button>
+                    <button type="submit" className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-2xl font-black shadow-lg shadow-amber-500/10 transition-all">Kaydet</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* DÜZENLEME MODALI */}
+          {/* Modal: Edit Item */}
           {editingItem && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-              <div className="bg-gray-900 border border-gray-800 w-full max-w-2xl rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-                <h2 className="text-xl font-bold mb-4 text-orange-400">Ürün ve Mutfak Reçetesi Düzenle: {editingItem.nameTR}</h2>
-                <form onSubmit={handleSaveItem} className="space-y-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+              <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+                <h2 className="text-xl font-black mb-6 text-amber-400 tracking-tight">Ürün & Reçete Düzenle</h2>
+                <form onSubmit={handleSaveItem} className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Yemek Adı (TR)</label>
-                    <input type="text" required value={editingItem.nameTR} onChange={e => setEditingItem({...editingItem, nameTR: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Yemek Adı (TR)</label>
+                    <input type="text" required value={editingItem.nameTR} onChange={e => setEditingItem({...editingItem, nameTR: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Kategori</label>
-                      <select value={editingItem.categoryId} onChange={e => setEditingItem({...editingItem, categoryId: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none">
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
+                      <select value={editingItem.categoryId} onChange={e => setEditingItem({...editingItem, categoryId: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium">
                         {categories.map(c => <option key={c.id} value={c.id}>{c.nameTR}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Fiyat (₺)</label>
-                      <input type="number" required value={editingItem.price} onChange={e => setEditingItem({...editingItem, price: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Fiyat (₺)</label>
+                      <input type="number" required value={editingItem.price} onChange={e => setEditingItem({...editingItem, price: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Görsel URL</label>
-                    <input type="text" value={editingItem.image} onChange={e => setEditingItem({...editingItem, image: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Görsel URL</label>
+                    <input type="text" value={editingItem.image} onChange={e => setEditingItem({...editingItem, image: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Açıklama</label>
-                    <textarea rows="2" value={editingItem.description} onChange={e => setEditingItem({...editingItem, description: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Açıklama</label>
+                    <textarea rows="2" value={editingItem.description} onChange={e => setEditingItem({...editingItem, description: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-orange-400 uppercase mb-1">🥩 Mutfak Gramajları / İçerik (Virgülle ayırın)</label>
-                    <input type="text" value={Array.isArray(editingItem.ingredients) ? editingItem.ingredients.join(', ') : editingItem.ingredients} onChange={e => setEditingItem({...editingItem, ingredients: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                    <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">🥩 Mutfak Malzemeleri & Gramajlar</label>
+                    <input type="text" value={Array.isArray(editingItem.ingredients) ? editingItem.ingredients.join(', ') : editingItem.ingredients} onChange={e => setEditingItem({...editingItem, ingredients: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-orange-400 uppercase mb-1">👨‍🍳 Hazırlık Adımları (Her satıra bir adım)</label>
-                    <textarea rows="3" value={Array.isArray(editingItem.steps) ? editingItem.steps.join('\n') : editingItem.steps} onChange={e => setEditingItem({...editingItem, steps: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 focus:outline-none" />
+                    <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">👨‍🍳 Hazırlık Adımları</label>
+                    <textarea rows="3" value={Array.isArray(editingItem.steps) ? editingItem.steps.join('\n') : editingItem.steps} onChange={e => setEditingItem({...editingItem, steps: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" />
                   </div>
-                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
-                    <button type="button" onClick={() => setEditingItem(null)} className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-5 py-2.5 rounded-xl font-bold">İptal</button>
-                    <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg">Değişiklikleri Kaydet</button>
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onClick={() => setEditingItem(null)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-6 py-3 rounded-2xl font-bold transition-all">İptal</button>
+                    <button type="submit" className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-2xl font-black shadow-lg shadow-amber-500/10 transition-all">Güncellemeyi Kaydet</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* SEKME 1: MENÜ & FİYAT LİSTESİ */}
+          {/* TAB 1: ITEMS */}
           {adminTab === 'items' && (
             <div className="space-y-6">
               {categories.map(cat => {
                 const catItems = items.filter(i => i.categoryId === cat.id);
                 return (
-                  <div key={cat.id} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg">
-                    <h2 className="text-lg font-bold text-orange-400 mb-4 border-b border-gray-800 pb-2 flex justify-between">
-                      <span>📁 {cat.nameTR}</span>
-                      <span className="text-xs bg-gray-800 px-2 py-1 rounded-full text-gray-400">{catItems.length} Ürün</span>
-                    </h2>
-                    <div className="divide-y divide-gray-800">
+                  <div key={cat.id} className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md shadow-xl">
+                    <div className="flex justify-between items-center mb-5 border-b border-slate-800/80 pb-4">
+                      <h2 className="text-lg font-black tracking-tight text-amber-400 flex items-center gap-3">
+                        <span className="p-2 bg-slate-800/80 rounded-xl text-sm">📁</span> {cat.nameTR}
+                      </h2>
+                      <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full font-bold">{catItems.length} Ürün</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {catItems.map(item => (
-                        <div key={item.id} className="py-3 flex justify-between items-center gap-3">
-                          <div className="flex items-center gap-3">
-                            <img src={item.image} alt="" className="w-12 h-12 rounded-xl object-cover border border-gray-700" />
+                        <div key={item.id} className="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-4 flex items-center justify-between gap-4 hover:border-slate-700 transition-all">
+                          <div className="flex items-center gap-4">
+                            <img src={item.image} alt="" className="w-16 h-16 rounded-2xl object-cover border border-slate-800 shadow-md" />
                             <div>
-                              <h3 className="font-bold text-white">{item.nameTR}</h3>
-                              <p className="text-xs text-gray-400">{item.price} ₺</p>
+                              <h3 className="font-bold text-white text-base">{item.nameTR}</h3>
+                              <span className="text-amber-400 font-black text-sm">{item.price} ₺</span>
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <button onClick={() => setEditingItem(item)} className="bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1.5 rounded-lg text-xs font-bold">Düzenle</button>
-                            <button onClick={() => handleDeleteItem(item.id, item.recipeId)} className="bg-red-900/40 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-800/50">Sil</button>
+                            <button onClick={() => setEditingItem(item)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Düzenle</button>
+                            <button onClick={() => handleDeleteItem(item.id, item.recipeId)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Sil</button>
                           </div>
                         </div>
                       ))}
@@ -320,43 +315,47 @@ export default function App() {
             </div>
           )}
 
-          {/* SEKME 2: MUTFAK ŞEFİ REÇETELERİ */}
+          {/* TAB 2: KITCHEN */}
           {adminTab === 'kitchen' && (
             <div className="space-y-6">
-              <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-2xl text-orange-300 text-sm">
-                💡 Bu alan mutfaktaki şefler ve aşçılar için tasarlanmıştır. Porsiyon gramajları ve hazırlık adımları doğrudan bu ekrandan yönetilir.
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-5 rounded-3xl text-amber-300 text-sm flex items-center gap-4 shadow-lg">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <strong className="block text-white font-black mb-0.5">Mutfak Operasyon Terminali</strong>
+                  Bu bölüm şefler ve mutfak personeli için porsiyon gramajlarını, reçete içeriklerini ve adım akışlarını optimize etmek üzere tasarlanmıştır.
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {items.map(item => (
-                  <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                  <div key={item.id} className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md shadow-xl flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-lg font-bold text-white">{item.nameTR}</h3>
-                        <span className="text-xs bg-orange-500/20 text-orange-400 px-2.5 py-1 rounded-full font-bold">ID: {item.recipeId || 'Yok'}</span>
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-xl font-black text-white tracking-tight">{item.nameTR}</h3>
+                        <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full font-bold">Standard Prep</span>
                       </div>
                       
-                      <div className="mb-4">
-                        <span className="text-xs font-bold text-gray-400 uppercase block mb-1">🥩 Gramaj ve Malzemeler:</span>
-                        <div className="flex flex-wrap gap-1.5">
+                      <div className="mb-5">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">🥩 Gramaj ve Bileşenler:</span>
+                        <div className="flex flex-wrap gap-2">
                           {item.ingredients && item.ingredients.length > 0 ? (
                             item.ingredients.map((ing, idx) => (
-                              <span key={idx} className="bg-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-gray-700">
+                              <span key={idx} className="bg-slate-950 text-slate-300 text-xs px-3 py-1.5 rounded-xl border border-slate-800 font-medium">
                                 {ing}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-gray-500 italic">Malzeme bilgisi girilmemiş.</span>
+                            <span className="text-xs text-slate-600 italic">Malzeme bilgisi tanımlanmamış.</span>
                           )}
                         </div>
                       </div>
 
-                      <div className="mb-4">
-                        <span className="text-xs font-bold text-gray-400 uppercase block mb-1">👨‍🍳 Hazırlık Talimatları:</span>
-                        <ol className="list-decimal list-inside text-xs text-gray-300 space-y-1 bg-gray-950 p-3 rounded-xl border border-gray-800">
+                      <div className="mb-5">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">👨‍🍳 İstasyon Adımları:</span>
+                        <ol className="list-decimal list-inside text-xs text-slate-300 space-y-1.5 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 font-medium">
                           {item.steps && item.steps.length > 0 ? (
-                            item.steps.map((step, idx) => <li key={idx}>{step}</li>)
+                            item.steps.map((step, idx) => <li key={idx} className="leading-relaxed">{step}</li>)
                           ) : (
-                            <span className="text-xs text-gray-500 italic">Hazırlık adımı eklenmemiş.</span>
+                            <span className="text-xs text-slate-600 italic">Hazırlık adımı eklenmemiş.</span>
                           )}
                         </ol>
                       </div>
@@ -364,9 +363,9 @@ export default function App() {
 
                     <button 
                       onClick={() => setEditingItem(item)}
-                      className="w-full bg-gray-800 hover:bg-gray-700 text-orange-400 font-bold py-2.5 rounded-xl text-xs transition-all border border-gray-700 mt-2"
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-black py-3 rounded-2xl text-xs transition-all border border-slate-700 shadow-md"
                     >
-                      Mutfak Reçetesini Düzenle
+                      Reçeteyi Güncelle
                     </button>
                   </div>
                 ))}
@@ -380,124 +379,148 @@ export default function App() {
   }
 
   // ==========================================
-  // MÜŞTERİ MENÜSÜ GÖRÜNÜMÜ
+  // MODERN MÜŞTERİ MENÜSÜ (LUXURY GLASSMORPHISM)
   // ==========================================
   const filteredItems = items.filter(item => item.categoryId === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 font-sans relative">
+    <div className="min-h-screen bg-[#0a0a0c] text-slate-100 pb-28 font-sans antialiased selection:bg-amber-500 selection:text-black">
       
+      {/* Admin Quick Entry Button */}
       <button 
         onClick={() => { setIsAdmin(true); window.history.replaceState({}, '', '?admin=true'); }}
-        className="fixed top-4 right-4 z-50 bg-black/75 hover:bg-black text-white text-xs font-bold px-3.5 py-2 rounded-full backdrop-blur-md shadow-xl transition-all border border-white/10"
+        className="fixed top-4 right-4 z-50 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-xs font-black px-4 py-2.5 rounded-full backdrop-blur-xl shadow-2xl transition-all border border-slate-700/80 flex items-center gap-2 active:scale-95"
       >
-        ⚙️ Yönetici & Mutfak Paneli
+        <span>⚙️</span> Yönetici Paneli
       </button>
 
-      <div className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="h-40 bg-cover bg-center" style={{backgroundImage: "url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&q=80')"}}>
-          <div className="w-full h-full bg-black/40 flex flex-col justify-end p-4">
-            <h1 className="text-3xl font-bold text-white tracking-tight">The Brook</h1>
-            <p className="text-sm text-gray-200">Phuket Yerel Malzemeleriyle Türk Mutfağı</p>
-          </div>
-        </div>
-
-        <div className="flex overflow-x-auto hide-scrollbar py-4 px-4 gap-3 bg-white">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeCategory === cat.id
-                  ? "bg-orange-500 text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {cat.nameTR}
-            </button>
-          ))}
+      {/* HEADER & HERO */}
+      <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 bg-cover bg-center scale-105 filter brightness-75 transition-transform duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80')"}}></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/40 to-transparent"></div>
+        
+        <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1">
+          <span className="text-amber-400 font-bold text-xs uppercase tracking-widest bg-amber-500/10 border border-amber-500/25 px-3 py-1 rounded-full w-fit backdrop-blur-md">
+            Phuket • Fine Dining & Fusion
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">The Brook</h1>
+          <p className="text-sm text-slate-300 font-medium">Yerel Malzemelerle Harmanlanmış Eşsiz Türk Mutfağı</p>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          {categories.find(c => c.id === activeCategory)?.nameTR}
-        </h2>
+      {/* STICKY CATEGORY PILLS */}
+      <div className="sticky top-0 z-40 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-slate-900 py-3 px-4 overflow-x-auto hide-scrollbar flex gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`whitespace-nowrap px-5 py-2.5 rounded-2xl text-xs font-black transition-all duration-300 ${
+              activeCategory === cat.id
+                ? "bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 shadow-lg shadow-amber-500/20 scale-105"
+                : "bg-slate-900/80 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800/50"
+            }`}
+          >
+            {cat.nameTR}
+          </button>
+        ))}
+      </div>
+
+      {/* MENU FEED */}
+      <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-black text-white tracking-tight">
+            {categories.find(c => c.id === activeCategory)?.nameTR}
+          </h2>
+          <span className="text-xs text-slate-500 font-bold">{filteredItems.length} Seçenek</span>
+        </div>
 
         {filteredItems.map((item) => (
           <div 
             key={item.id} 
             onClick={() => setSelectedItem(item)}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col active:scale-95 transition-transform cursor-pointer"
+            className="group bg-slate-900/50 border border-slate-800/80 rounded-3xl p-4 flex gap-4 backdrop-blur-md shadow-lg active:scale-98 transition-all duration-300 cursor-pointer hover:border-amber-500/50 hover:bg-slate-900"
           >
-            <div className="h-48 w-full overflow-hidden relative">
-              <img src={item.image} alt={item.nameTR} className="w-full h-full object-cover" />
+            <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl overflow-hidden relative shrink-0 shadow-md">
+              <img src={item.image} alt={item.nameTR} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               {item.tags?.includes("İmza") && (
-                <span className="absolute top-3 left-3 bg-black/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                <span className="absolute top-2 left-2 bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow">
                   ⭐ Signature
                 </span>
               )}
             </div>
 
-            <div className="p-4 flex flex-col gap-2">
-              <div className="flex justify-between items-start">
-                <h3 className="font-bold text-lg text-gray-900 leading-tight pr-4">{item.nameTR}</h3>
-                <span className="font-bold text-orange-600 text-lg whitespace-nowrap">{item.price} ₺</span>
+            <div className="flex flex-col justify-between flex-1 py-1">
+              <div>
+                <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-amber-400 transition-colors leading-tight mb-1">{item.nameTR}</h3>
+                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
               </div>
-              <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+              <div className="flex justify-between items-center mt-2">
+                <span className="font-black text-amber-400 text-lg tracking-tight">{item.price} ₺</span>
+                <span className="text-[11px] bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 text-slate-300 font-bold px-3 py-1.5 rounded-xl transition-all">
+                  İncele →
+                </span>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="fixed bottom-0 w-full bg-white border-t border-gray-200 p-4 flex justify-between items-center z-40">
-        <button className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-xl mr-2">
+      {/* BOTTOM ACTION BAR */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0a0a0c]/90 backdrop-blur-2xl border-t border-slate-900 p-4 flex justify-between items-center z-40 max-w-2xl mx-auto">
+        <button className="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 font-black py-3.5 px-4 rounded-2xl mr-2 text-xs sm:text-sm transition-all shadow-md">
           🔔 Garson Çağır
         </button>
-        <button className="flex-1 bg-black text-white font-bold py-3 px-4 rounded-xl ml-2">
+        <button className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-3.5 px-4 rounded-2xl ml-2 text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20">
           Hesap İste
         </button>
       </div>
 
+      {/* LUXURY ITEM MODAL */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0">
-          <div className="bg-white w-full max-w-md rounded-t-3xl overflow-hidden shadow-2xl animate-[slideUp_0.3s_ease-out] max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-xl p-0 sm:p-4">
+          <div className="bg-[#121216] border border-slate-800 w-full max-w-lg rounded-t-[2.5rem] sm:rounded-3xl overflow-hidden shadow-2xl animate-[slideUp_0.3s_cubic-bezier(0.16,1,0.3,1)] max-h-[90vh] overflow-y-auto hide-scrollbar">
             
-            <div className="relative h-64">
+            <div className="relative h-72 w-full">
               <img src={selectedItem.image} alt={selectedItem.nameTR} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#121216] via-transparent to-transparent"></div>
               <button 
                 onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center backdrop-blur-md font-bold"
+                className="absolute top-4 right-4 bg-slate-900/80 hover:bg-slate-800 text-white rounded-full w-10 h-10 flex items-center justify-center backdrop-blur-md font-black shadow-lg border border-slate-700"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 pr-4">{selectedItem.nameTR}</h2>
-                <span className="text-2xl font-bold text-orange-600 whitespace-nowrap">{selectedItem.price} ₺</span>
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">{selectedItem.nameTR}</h2>
+                  <span className="text-amber-400 font-bold text-xs uppercase tracking-widest">Özel Reçete Ürünü</span>
+                </div>
+                <span className="text-2xl sm:text-3xl font-black text-amber-400 whitespace-nowrap">{selectedItem.price} ₺</span>
               </div>
               
-              <p className="text-gray-600 mb-6 leading-relaxed">{selectedItem.description}</p>
+              <p className="text-slate-300 text-sm leading-relaxed">{selectedItem.description}</p>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-center">
-                  <span className="block text-xs text-orange-500 font-bold uppercase mb-1">Kalori</span>
-                  <span className="block text-xl font-bold text-gray-900">{selectedItem.calories || "-"} kcal</span>
+              {/* Macro Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl text-center shadow-inner">
+                  <span className="block text-[10px] text-amber-400 font-black uppercase tracking-wider mb-1">Enerji Değeri</span>
+                  <span className="block text-xl font-black text-white">{selectedItem.calories || "-"} <span className="text-xs text-slate-400">kcal</span></span>
                 </div>
-                <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center">
-                  <span className="block text-xs text-blue-500 font-bold uppercase mb-1">Protein</span>
-                  <span className="block text-xl font-bold text-gray-900">{selectedItem.protein || "-"}</span>
+                <div className="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl text-center shadow-inner">
+                  <span className="block text-[10px] text-blue-400 font-black uppercase tracking-wider mb-1">Protein Oranı</span>
+                  <span className="block text-xl font-black text-white">{selectedItem.protein || "-"}</span>
                 </div>
               </div>
 
+              {/* Allergens */}
               {selectedItem.allergens && selectedItem.allergens.length > 0 && (
-                <div className="mb-8">
-                  <span className="block text-xs font-bold text-gray-400 uppercase mb-3">⚠️ Alerjen Uyarısı</span>
+                <div>
+                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">⚠️ Alerjen Bildirimi</span>
                   <div className="flex flex-wrap gap-2">
                     {selectedItem.allergens.map(alerjen => (
-                      <span key={alerjen} className="bg-red-50 text-red-600 border border-red-100 text-sm font-bold px-4 py-2 rounded-full">
+                      <span key={alerjen} className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold px-3.5 py-1.5 rounded-xl">
                         {alerjen}
                       </span>
                     ))}
@@ -505,8 +528,8 @@ export default function App() {
                 </div>
               )}
 
-              <button className="w-full bg-black text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform text-lg">
-                Sepete Ekle - {selectedItem.price} ₺
+              <button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-4 rounded-2xl shadow-xl shadow-amber-500/20 active:scale-98 transition-all text-base">
+                Siparişe Ekle — {selectedItem.price} ₺
               </button>
             </div>
           </div>
