@@ -1,0 +1,6 @@
+dist/
+.vite/
+node_modules/dist/.vite/.env
+*.swp
+node_modules/
+*.swp

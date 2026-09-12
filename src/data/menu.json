@@ -1,0 +1,34 @@
+{
+  "categories": [
+    {
+      "id": "c_breakfast",
+      "nameTR": "Kahvaltı Deneyimi",
+      "nameEN": "Breakfast Experience",
+      "slug": "kahvalti",
+      "sortOrder": 1,
+      "active": true
+    }
+  ],
+  "items": [
+    {
+      "id": "b_01",
+      "nameTR": "Serpme Kahvaltı (The Sultan’s Spread)",
+      "nameEN": "The Sultan’s Spread",
+      "categoryId": "c_breakfast",
+      "templateId": "default", 
+      "tags": ["Paylaşımlı", "İmza"],
+      "available": true,
+      "recipeId": "r_b_01"
+    }
+  ],
+  "recipes": [
+     {
+      "id": "r_b_01",
+      "heroImage": "/images/breakfast.jpg",
+      "description": "2 Kişilik Paylaşımlı Deneyim. Peynir tabağı, söğüş, zeytin, bal & kaymak, menemen, sigara böreği ve ızgara sucuk.",
+      "ingredients": ["Beyaz Peynir", "Taze Kaşar", "Çengelköy salatalığı", "Sigara böreği", "Izgara sucuk"],
+      "steps": [],
+      "chefNotes": "Masa düzenine dikkat et, çay servisi sıcak olmalı."
+    }
+  ]
+}

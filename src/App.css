@@ -1,0 +1,7 @@
+/* Vite template stilleri temizlendi.
+   Uygulama ekranlari kendi layout/padding'ini yonetiyor. */
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
