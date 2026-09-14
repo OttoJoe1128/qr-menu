@@ -1,16 +1,16 @@
 import "./i18n/i18n";
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import { seedDatabase } from './dev/seed' // Veritabanı tohumlama fonksiyonunu içe aktardık
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import AppRouter from './ui/router/AppRouter';
+import { seedDatabase } from './dev/seed';
 
 // 1. Önce veritabanını tohumla
 seedDatabase().then(() => {
-  // 2. Tohumlama başarılı olursa React uygulamasını (Arayüzü) ayağa kaldır
+  // 2. Monolit (App.jsx) yerine Domain-Driven Router devrede
   createRoot(document.getElementById('root')).render(
     <StrictMode>
-      <App />
+      <AppRouter />
     </StrictMode>,
   )
 }).catch((error) => {
