@@ -1,26 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./HomeMenuScreen.css";
-import { db, MenuCategory, MenuItem, MenuRating, Recipe } from "../../db";
+import { MenuCategory, MenuItem, MenuRating, Recipe } from "../../db";
 import {
   buildMenuKategoriOzetleri,
   buildMenuKategoriOzetleriFromKategoriler,
   MenuKategoriSiralamaModu,
   sortMenuKategoriOzetleri,
 } from "./menuKategoriUtils";
+import { useMenuData } from "./hooks/useMenuData"; // YENİ: Veri Katmanı Hook'u
 
 export default function HomeMenuScreen() {
   const navigate = useNavigate();
   const [aramaParametreleri] = useSearchParams();
   const adminKisayoluAnahtari: string = "qr_menu_admin_kisayolu";
   const masaNumarasiAnahtari: string = "qr_menu_table_number";
+  
+  // Sadece Arayüz (UI) Durumları
   const [aramaMetni, setAramaMetni] = useState<string>("");
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [kategoriler, setKategoriler] = useState<MenuCategory[]>([]);
-  const [puanlar, setPuanlar] = useState<MenuRating[]>([]);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
   const [siralamaModu, setSiralamaModu] = useState<MenuKategoriSiralamaModu>("sayim_azalan");
+
+  // KAPSÜLLENMİŞ VERİ KATMANI (Veritabanı mantığı UI'dan ayrıldı)
+  const { menuItems, kategoriler, puanlar, recipes, isYukleniyor } = useMenuData();
 
   const isAdminKisayoluGorunur: boolean = useMemo((): boolean => {
     const isAdmin: string | null = aramaParametreleri.get("admin");
@@ -30,36 +31,6 @@ export default function HomeMenuScreen() {
     const kayitli: string | null = localStorage.getItem(adminKisayoluAnahtari);
     return kayitli === "1";
   }, [aramaParametreleri, adminKisayoluAnahtari]);
-
-  useEffect((): (() => void) => {
-    let isIptalEdildi: boolean = false;
-    async function yukleMenuItems(): Promise<void> {
-      try {
-        const [items, cats, ratings, rcp]: [MenuItem[], MenuCategory[], MenuRating[], Recipe[]] = await Promise.all([
-          db.menuItems.toArray(),
-          db.categories.toArray(),
-          db.ratings.toArray(),
-          db.recipes.toArray(),
-        ]);
-        if (isIptalEdildi) {
-          return;
-        }
-        setMenuItems(items);
-        setKategoriler(cats);
-        setPuanlar(ratings);
-        setRecipes(rcp);
-      } finally {
-        if (isIptalEdildi) {
-          return;
-        }
-        setIsYukleniyor(false);
-      }
-    }
-    void yukleMenuItems();
-    return (): void => {
-      isIptalEdildi = true;
-    };
-  }, []);
 
   useEffect((): void => {
     const category: string | null = aramaParametreleri.get("category");
@@ -76,7 +47,7 @@ export default function HomeMenuScreen() {
         ? buildMenuKategoriOzetleriFromKategoriler(menuItems, kategoriler)
         : buildMenuKategoriOzetleri(menuItems);
     return sortMenuKategoriOzetleri(ozetler, siralamaModu);
-  }, [menuItems, siralamaModu]);
+  }, [menuItems, kategoriler, siralamaModu]);
 
   const masaNumarasi: string | null = useMemo((): string | null => {
     const kayitli: string | null = localStorage.getItem(masaNumarasiAnahtari);
@@ -182,8 +153,7 @@ export default function HomeMenuScreen() {
         <div className="menu-empty">Yükleniyor...</div>
       ) : kategoriOzetleri.length === 0 ? (
         <div className="menu-empty">
-          Menü henüz hazır değil. (Veri yok) İsterseniz `src/dev/seed.ts` ile örnek veri
-          oluşturabilirsiniz.
+          Menü henüz hazır değil. (Veri yok) İsterseniz Admin Panelinden örnek veri oluşturabilirsiniz.
         </div>
       ) : filtreliKategoriOzetleri.length === 0 ? (
         <div className="menu-empty">Aramaya uygun kategori bulunamadı.</div>
