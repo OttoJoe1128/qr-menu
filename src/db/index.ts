@@ -8,6 +8,7 @@ import { TableSession } from "../ops/ops.types";
 ====================================================== */
 export interface CoreState {
   id: "core";
+  tenantId: string;
   schemaVersion: number;
   lastApprovedSnapshotId?: string;
   updatedAt: number;
@@ -23,6 +24,7 @@ export type TemplateId = keyof typeof TemplateRegistry;
 ====================================================== */
 export interface MenuItem {
   id: string;
+  tenantId: string;
   nameTR: string;
   nameEN?: string;
   templateId: TemplateId;
@@ -32,7 +34,6 @@ export interface MenuItem {
   available: boolean;
   createdAt: number;
   updatedAt: number;
-  // B2B SaaS Özellikleri (Yeni Eklenenler)
   price: number;
   calories?: number;
   protein?: string;
@@ -44,6 +45,7 @@ export interface MenuItem {
 ====================================================== */
 export interface MenuCategory {
   id: string;
+  tenantId: string;
   nameTR: string;
   nameEN?: string;
   slug: string;
@@ -59,6 +61,7 @@ export interface MenuCategory {
 ====================================================== */
 export interface Recipe {
   id: string;
+  tenantId: string;
   heroImage: string;
   description: string;
   ingredients: string[];
@@ -75,6 +78,7 @@ export interface Recipe {
 ====================================================== */
 export interface MenuRating {
   id: string;
+  tenantId: string;
   menuItemId: string;
   tableSessionId?: string;
   score: number;
@@ -88,6 +92,7 @@ export type ChangeSetStatus = "draft" | "review" | "approved" | "published";
 
 export interface ChangeSet {
   id: string;
+  tenantId: string;
   baseSnapshotId?: string;
   status: ChangeSetStatus;
   patches: any[];
@@ -101,6 +106,7 @@ export interface ChangeSet {
 ====================================================== */
 export interface Snapshot {
   id: string;
+  tenantId: string;
   contentHash: string;
   menuVersion: number;
   createdAt: number;
@@ -124,7 +130,6 @@ class QRMenuDB extends Dexie {
   constructor() {
     super("qr-menu-db");
 
-    // v1 — Core system
     this.version(1).stores({
       core: "id",
       menuItems: "id, templateId, available, updatedAt",
@@ -134,16 +139,39 @@ class QRMenuDB extends Dexie {
       auditEvents: "id, type, severity, createdAt",
     });
 
-    // v2 — OPS / Table Sessions
     this.version(2).stores({
       tableSessions: "id, tableNumber, status, openedAt",
     });
 
-    // v3 — Categories + Ratings + menuItem category index
     this.version(3).stores({
       menuItems: "id, templateId, categoryId, available, updatedAt",
       categories: "id, slug, active, sortOrder, updatedAt",
       ratings: "id, menuItemId, tableSessionId, createdAt",
+    });
+
+    // v4 — B2B SaaS Multi-Tenancy Migration
+    this.version(4).stores({
+      core: "id, tenantId",
+      menuItems: "id, tenantId, templateId, categoryId, available, updatedAt",
+      recipes: "id, tenantId, updatedAt",
+      changeSets: "id, tenantId, status, createdAt",
+      snapshots: "id, tenantId, menuVersion, createdAt",
+      auditEvents: "id, tenantId, type, severity, createdAt",
+      tableSessions: "id, tenantId, tableNumber, status, openedAt",
+      categories: "id, tenantId, slug, active, sortOrder, updatedAt",
+      ratings: "id, tenantId, menuItemId, tableSessionId, createdAt"
+    }).upgrade(async (tx) => {
+      const defaultTenant = "local_demo_tenant";
+      await Promise.all([
+        tx.table("menuItems").toCollection().modify(item => { item.tenantId = defaultTenant; }),
+        tx.table("categories").toCollection().modify(cat => { cat.tenantId = defaultTenant; }),
+        tx.table("recipes").toCollection().modify(rcp => { rcp.tenantId = defaultTenant; }),
+        tx.table("ratings").toCollection().modify(rtg => { rtg.tenantId = defaultTenant; }),
+        tx.table("changeSets").toCollection().modify(cs => { cs.tenantId = defaultTenant; }),
+        tx.table("snapshots").toCollection().modify(snap => { snap.tenantId = defaultTenant; }),
+        tx.table("auditEvents").toCollection().modify(audit => { audit.tenantId = defaultTenant; }),
+        tx.table("tableSessions").toCollection().modify(ts => { ts.tenantId = defaultTenant; })
+      ]);
     });
   }
 }

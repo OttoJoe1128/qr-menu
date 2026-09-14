@@ -8,25 +8,29 @@ export function useAdminData() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
 
+  // B2B SaaS: Aktif Kiracı ID'si (Şimdilik lokal simülasyon)
+  const currentTenantId = "local_demo_tenant"; 
+
   const fetchData = useCallback(async () => {
     setIsYukleniyor(true);
     try {
+      // Sadece giriş yapan kiracının (tenant) verileri çekilir
       const [items, cats, ratings, rcp] = await Promise.all([
-        db.menuItems.orderBy("updatedAt").reverse().toArray(),
-        db.categories.orderBy("sortOrder").toArray(),
-        db.ratings.toArray(),
-        db.recipes.orderBy("updatedAt").reverse().toArray(),
+        db.menuItems.where("tenantId").equals(currentTenantId).reverse().sortBy("updatedAt"),
+        db.categories.where("tenantId").equals(currentTenantId).sortBy("sortOrder"),
+        db.ratings.where("tenantId").equals(currentTenantId).toArray(),
+        db.recipes.where("tenantId").equals(currentTenantId).reverse().sortBy("updatedAt"),
       ]);
       setMenuItems(items);
       setKategoriler(cats);
       setPuanlar(ratings);
       setRecipes(rcp);
     } catch (error) {
-      console.error("Veri yüklenirken kritik bir hata oluştu:", error);
+      console.error("Admin verileri yüklenirken kritik bir hata oluştu:", error);
     } finally {
       setIsYukleniyor(false);
     }
-  }, []);
+  }, [currentTenantId]);
 
   useEffect(() => {
     void fetchData();

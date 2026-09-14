@@ -8,18 +8,21 @@ export function useMenuData() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isYukleniyor, setIsYukleniyor] = useState<boolean>(true);
 
+  // B2B SaaS: Gösterilecek Restoran (Tenant) ID'si (Gelecekte URL Subdomain'inden veya Parametreden alınacak)
+  const currentTenantId = "local_demo_tenant";
+
   const fetchData = useCallback(async () => {
     setIsYukleniyor(true);
     try {
-      // SADECE GEREKLİ VERİLER: Tüm veriyi çeker ve iş kurallarını (Aktiflik) uygular
+      // SADECE aktif kiracının verilerini çek
       const [allItems, allCats, allRatings, allRcp] = await Promise.all([
-        db.menuItems.toArray(),
-        db.categories.orderBy("sortOrder").toArray(),
-        db.ratings.toArray(),
-        db.recipes.toArray(),
+        db.menuItems.where("tenantId").equals(currentTenantId).toArray(),
+        db.categories.where("tenantId").equals(currentTenantId).sortBy("sortOrder"),
+        db.ratings.where("tenantId").equals(currentTenantId).toArray(),
+        db.recipes.where("tenantId").equals(currentTenantId).toArray(),
       ]);
 
-      // B2B SaaS Mantığı: Pasif olanları müşteri arayüzüne kesinlikle gönderme
+      // Müşteri Arayüzü İş Kuralları: Pasifleri gösterme
       setMenuItems(allItems.filter(item => item.available !== false));
       setKategoriler(allCats.filter(cat => cat.active !== false));
       setPuanlar(allRatings);
@@ -29,7 +32,7 @@ export function useMenuData() {
     } finally {
       setIsYukleniyor(false);
     }
-  }, []);
+  }, [currentTenantId]);
 
   useEffect(() => {
     void fetchData();
