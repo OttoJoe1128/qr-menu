@@ -26,6 +26,7 @@ export default function App() {
   
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [activeLangTab, setActiveLangTab] = useState("TR");
   const [newItemData, setNewItemData] = useState({
     nameTR: "",
     nameEN: "",
@@ -224,9 +225,18 @@ export default function App() {
               <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
                 <h2 className="text-xl font-black mb-6 text-amber-400 tracking-tight">Yeni Ürün & Operasyonel Reçete</h2>
                 <form onSubmit={handleCreateItem} className="space-y-5">
+                  
+                  {/* ÇOKLU DİL SEKMELERİ */}
+                  <div className="flex gap-2 mb-4 p-1.5 bg-slate-950/50 rounded-2xl w-fit border border-slate-800 shadow-inner">
+                    {["TR", "EN", "ES", "AR"].map(lang => (
+                      <button type="button" key={lang} onClick={() => setActiveLangTab(lang)} className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${activeLangTab === lang ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-500 hover:text-white"}`}>
+                        {lang === "TR" ? "🇹🇷 TR" : lang === "EN" ? "🇬🇧 EN" : lang === "ES" ? "🇪🇸 ES" : "🇦🇪 AR"}
+                      </button>
+                    ))}
+                  </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Yemek Adı (TR)</label>
-                    <input type="text" required value={newItemData.nameTR} onChange={e => setNewItemData({...newItemData, nameTR: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" placeholder="Örn: Trufflu Mantar Risotto" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Yemek Adı ({activeLangTab})</label>
+                    <input type="text" required={activeLangTab === "TR"} value={newItemData["name"+activeLangTab] || ""} onChange={e => setNewItemData({...newItemData, ["name"+activeLangTab]: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" placeholder={`Ürün adı (${activeLangTab})...`} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -245,8 +255,8 @@ export default function App() {
                     <input type="text" value={newItemData.image} onChange={e => setNewItemData({...newItemData, image: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" placeholder="https://images.unsplash.com/..." />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Açıklama</label>
-                    <textarea rows="2" value={newItemData.description} onChange={e => setNewItemData({...newItemData, description: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" placeholder="Menüde görünecek iştah kabartıcı açıklama..." />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Açıklama ({activeLangTab})</label>
+                    <textarea rows="2" value={newItemData["description"+activeLangTab] || (activeLangTab === "TR" ? newItemData.description : "") || ""} onChange={e => setNewItemData({...newItemData, ["description"+activeLangTab]: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" placeholder={`Menüde görünecek açıklama (${activeLangTab})...`} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">🥩 Mutfak Malzemeleri & Gramajlar (Virgülle ayırın)</label>
@@ -271,9 +281,18 @@ export default function App() {
               <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
                 <h2 className="text-xl font-black mb-6 text-amber-400 tracking-tight">Ürün & Reçete Düzenle</h2>
                 <form onSubmit={handleSaveItem} className="space-y-5">
+                  
+                  {/* ÇOKLU DİL SEKMELERİ */}
+                  <div className="flex gap-2 mb-4 p-1.5 bg-slate-950/50 rounded-2xl w-fit border border-slate-800 shadow-inner">
+                    {["TR", "EN", "ES", "AR"].map(lang => (
+                      <button type="button" key={lang} onClick={() => setActiveLangTab(lang)} className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${activeLangTab === lang ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-500 hover:text-white"}`}>
+                        {lang === "TR" ? "🇹🇷 TR" : lang === "EN" ? "🇬🇧 EN" : lang === "ES" ? "🇪🇸 ES" : "🇦🇪 AR"}
+                      </button>
+                    ))}
+                  </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Yemek Adı (TR)</label>
-                    <input type="text" required value={editingItem.nameTR} onChange={e => setEditingItem({...editingItem, nameTR: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Yemek Adı ({activeLangTab})</label>
+                    <input type="text" required={activeLangTab === "TR"} value={editingItem["name"+activeLangTab] || ""} onChange={e => setEditingItem({...editingItem, ["name"+activeLangTab]: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -292,8 +311,8 @@ export default function App() {
                     <input type="text" value={editingItem.image} onChange={e => setEditingItem({...editingItem, image: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Açıklama</label>
-                    <textarea rows="2" value={editingItem.description} onChange={e => setEditingItem({...editingItem, description: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Açıklama ({activeLangTab})</label>
+                    <textarea rows="2" value={editingItem["description"+activeLangTab] || (activeLangTab === "TR" ? editingItem.description : "") || ""} onChange={e => setEditingItem({...editingItem, ["description"+activeLangTab]: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none transition-all font-medium resize-none" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">🥩 Mutfak Malzemeleri & Gramajlar</label>
