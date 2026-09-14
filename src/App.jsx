@@ -21,6 +21,17 @@ export default function App() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
 // KUSURSUZ KATEGORİ VE ÜRÜN ÇÖZÜMLEME MOTORU
+  
+  // Dinamik Alerjen Çevirici
+  const translateAllergen = (allergen) => {
+    const lang = i18n.language;
+    const map = {
+      "Süt": { en: "Milk", es: "Leche", ar: "حليب" },
+      "Yumurta": { en: "Eggs", es: "Huevos", ar: "بيضان" }
+    };
+    return map[allergen]?.[lang] || allergen;
+  };
+
   const getLoc = (obj, key) => {
     if (!obj) return "";
     
@@ -680,7 +691,7 @@ export default function App() {
                   <div className="flex flex-wrap gap-2">
                     {selectedItem.allergens.map(alerjen => (
                       <span key={alerjen} className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold px-3.5 py-1.5 rounded-xl">
-                        {alerjen}
+                        {translateAllergen(alerjen)}
                       </span>
                     ))}
                   </div>
