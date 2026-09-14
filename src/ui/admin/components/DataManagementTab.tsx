@@ -91,11 +91,14 @@ export default function DataManagementTab({ adminSession, onSuccess, onError }: 
 
 async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> {
   const simdi = Date.now();
+  const currentTenantId = "local_demo_tenant"; // <-- KIRACI MÜHRÜ
+
   for (const kat of fullMenuKategoriler) {
     const cs: ChangeSet = {
       id: globalThis.crypto.randomUUID(),
+      tenantId: currentTenantId,
       status: "approved",
-      patches: [{ type: "ADD_CATEGORY", payload: { ...kat, active: true, createdAt: simdi, updatedAt: simdi } }],
+      patches: [{ type: "ADD_CATEGORY", payload: { ...kat, tenantId: currentTenantId, active: true, createdAt: simdi, updatedAt: simdi } }],
       createdAt: simdi, approvedAt: simdi, approvedBy: adminSession.adminId,
     };
     await db.changeSets.put(cs);
@@ -107,10 +110,11 @@ async function seedFullMenuToBrowser(adminSession: AdminSession): Promise<void> 
     const menuItemId = globalThis.crypto.randomUUID();
     const cs: ChangeSet = {
       id: globalThis.crypto.randomUUID(),
+      tenantId: currentTenantId,
       status: "approved",
       patches: [
-        { type: "ADD_RECIPE", payload: { id: recipeId, heroImage: urun.heroImage, description: urun.description, ingredients: urun.ingredients, steps: urun.steps, pairings: urun.pairings, chefNotes: urun.chefNotes, createdAt: simdi, updatedAt: simdi } },
-        { type: "ADD_MENU_ITEM", payload: { id: menuItemId, nameTR: urun.nameTR, nameEN: urun.nameEN, templateId: "food_detail_v1" as TemplateId, categoryId: urun.categoryId, recipeId: recipeId, tags: urun.tags, available: true, createdAt: simdi, updatedAt: simdi } }
+        { type: "ADD_RECIPE", payload: { id: recipeId, tenantId: currentTenantId, heroImage: urun.heroImage, description: urun.description, ingredients: urun.ingredients, steps: urun.steps, pairings: urun.pairings, chefNotes: urun.chefNotes, createdAt: simdi, updatedAt: simdi } },
+        { type: "ADD_MENU_ITEM", payload: { id: menuItemId, tenantId: currentTenantId, nameTR: urun.nameTR, nameEN: urun.nameEN, templateId: "food_detail_v1" as TemplateId, categoryId: urun.categoryId, recipeId: recipeId, tags: urun.tags, available: true, price: 0, createdAt: simdi, updatedAt: simdi } }
       ],
       createdAt: simdi, approvedAt: simdi, approvedBy: adminSession.adminId,
     };

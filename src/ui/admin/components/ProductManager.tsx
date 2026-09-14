@@ -32,6 +32,9 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
   const [hataMesaji, setHataMesaji] = useState<string | null>(null);
   const [basariMesaji, setBasariMesaji] = useState<string | null>(null);
 
+  // B2B SaaS: Aktif Kiracı (Tenant) Mührü
+  const currentTenantId = "local_demo_tenant";
+
   useEffect(() => {
     if (initialCategoryId && !duzenlenenMenuItemId) setSeciliKategoriId(initialCategoryId);
   }, [initialCategoryId, duzenlenenMenuItemId]);
@@ -67,20 +70,26 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
       const recipeId = duzenlenenRecipeId ?? globalThis.crypto.randomUUID();
 
       const recipe: Recipe = {
-        id: recipeId, heroImage: heroImageUrl.trim(), description: aciklamaMetin.trim(),
+        id: recipeId,
+        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        heroImage: heroImageUrl.trim(), description: aciklamaMetin.trim(),
         ingredients, steps, pairings: parseSatirlar(eslesmelerMetin),
         chefNotes: sefNotlariMetin.trim() || undefined, createdAt: simdi, updatedAt: simdi,
       };
 
       const menuItem: MenuItem = {
-        id, nameTR: urunAdiTR.trim(), nameEN: urunAdiEN.trim() || undefined,
+        id,
+        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        nameTR: urunAdiTR.trim(), nameEN: urunAdiEN.trim() || undefined,
         templateId: "food_detail_v1" as TemplateId, categoryId: seciliKategoriId,
         recipeId, tags: parseEtiketler(etiketlerMetin), available: isUrunMevcut,
-        createdAt: simdi, updatedAt: simdi,
+        createdAt: simdi, updatedAt: simdi, price: 0, // Geçici B2B varsayılanı
       };
 
       const cs: ChangeSet = {
-        id: globalThis.crypto.randomUUID(), status: "approved",
+        id: globalThis.crypto.randomUUID(),
+        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        status: "approved",
         patches: duzenlenenMenuItemId 
           ? [{ type: "UPDATE_RECIPE", payload: recipe }, { type: "UPDATE_MENU_ITEM", payload: menuItem }]
           : [{ type: "ADD_RECIPE", payload: recipe }, { type: "ADD_MENU_ITEM", payload: menuItem }],
@@ -120,7 +129,9 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
       const simdi = Date.now();
       const guncel = { ...item, available: yeniDurum, updatedAt: simdi };
       const cs: ChangeSet = {
-        id: globalThis.crypto.randomUUID(), status: "approved",
+        id: globalThis.crypto.randomUUID(),
+        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        status: "approved",
         patches: [{ type: "UPDATE_MENU_ITEM", payload: guncel }],
         createdAt: simdi, approvedAt: simdi, approvedBy: adminSession.adminId,
       };
