@@ -5,7 +5,15 @@ import { useTranslation } from "react-i18next";
 import LanguageTimeSwitcher from "./components/LanguageTimeSwitcher";
 
 export default function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // DİNAMİK VERİTABANI YERELLEŞTİRME MOTORU (FALLBACK DESTEKLİ)
+  const getLoc = (obj, key) => {
+    if (!obj) return "";
+    const lang = i18n.language.toUpperCase();
+    // Önce seçili dili, yoksa İngilizceyi, yoksa Türkçeyi, o da yoksa varsayılanı getir
+    return obj[key + lang] || obj[key + "EN"] || obj[key + "TR"] || obj[key] || "";
+  };
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [recipes, setRecipes] = useState([]);
@@ -20,6 +28,13 @@ export default function App() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newItemData, setNewItemData] = useState({
     nameTR: "",
+    nameEN: "",
+    nameES: "",
+    nameAR: "",
+    descriptionTR: "",
+    descriptionEN: "",
+    descriptionES: "",
+    descriptionAR: "",
     categoryId: "cat-kahvalti",
     price: 0,
     calories: 0,
@@ -65,6 +80,9 @@ export default function App() {
 
     await db.menuItems.update(editingItem.id, {
       nameTR: editingItem.nameTR,
+      nameEN: editingItem.nameEN,
+      nameES: editingItem.nameES,
+      nameAR: editingItem.nameAR,
       price: Number(editingItem.price),
       categoryId: editingItem.categoryId,
       updatedAt: Date.now()
@@ -74,6 +92,10 @@ export default function App() {
       await db.recipes.update(editingItem.recipeId, {
         heroImage: editingItem.image,
         description: editingItem.description,
+        descriptionTR: editingItem.descriptionTR,
+        descriptionEN: editingItem.descriptionEN,
+        descriptionES: editingItem.descriptionES,
+        descriptionAR: editingItem.descriptionAR,
         ingredients: typeof editingItem.ingredients === 'string' ? editingItem.ingredients.split(',').map(i => i.trim()) : editingItem.ingredients,
         steps: typeof editingItem.steps === 'string' ? editingItem.steps.split('\n').filter(s => s.trim() !== '') : editingItem.steps,
         updatedAt: Date.now()
@@ -92,7 +114,11 @@ export default function App() {
     await db.recipes.put({
       id: newRecipeId,
       heroImage: newItemData.image || "https://images.unsplash.com/photo-1541529086526-db283c563270?w=600&q=80",
-      description: newItemData.description || "Yeni lezzet.",
+      description: newItemData.descriptionTR || newItemData.description || "",
+      descriptionTR: newItemData.descriptionTR,
+      descriptionEN: newItemData.descriptionEN,
+      descriptionES: newItemData.descriptionES,
+      descriptionAR: newItemData.descriptionAR,
       ingredients: newItemData.ingredients ? newItemData.ingredients.split(',').map(i => i.trim()) : [],
       steps: newItemData.steps ? newItemData.steps.split('\n').filter(s => s.trim() !== '') : [],
       createdAt: Date.now(),
@@ -102,6 +128,9 @@ export default function App() {
     await db.menuItems.put({
       id: newId,
       nameTR: newItemData.nameTR,
+      nameEN: newItemData.nameEN,
+      nameES: newItemData.nameES,
+      nameAR: newItemData.nameAR,
       categoryId: newItemData.categoryId,
       recipeId: newRecipeId,
       templateId: "food_detail_v1",
@@ -292,9 +321,9 @@ export default function App() {
                   <div key={cat.id} className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md shadow-xl">
                     <div className="flex justify-between items-center mb-5 border-b border-slate-800/80 pb-4">
                       <h2 className="text-lg font-black tracking-tight text-amber-400 flex items-center gap-3">
-                        <span className="p-2 bg-slate-800/80 rounded-xl text-sm">📁</span> {cat.nameTR}
+                        <span className="p-2 bg-slate-800/80 rounded-xl text-sm">📁</span> {getLoc(cat, "name")}
                       </h2>
-                      <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full font-bold">{catItems.length} Ürün</span>
+                      <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full font-bold">{catItems.length} {t("menu.options") || "Seçenek"}</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {catItems.map(item => (
@@ -302,7 +331,7 @@ export default function App() {
                           <div className="flex items-center gap-4">
                             <img src={item.image} alt="" className="w-16 h-16 rounded-2xl object-cover border border-slate-800 shadow-md" />
                             <div>
-                              <h3 className="font-bold text-white text-base">{item.nameTR}</h3>
+                              <h3 className="font-bold text-white text-base">{getLoc(item, "name")}</h3>
                               <span className="text-amber-400 font-black text-sm">{item.price} ₺</span>
                             </div>
                           </div>
@@ -334,7 +363,7 @@ export default function App() {
                   <div key={item.id} className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md shadow-xl flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-xl font-black text-white tracking-tight">{item.nameTR}</h3>
+                        <h3 className="text-xl font-black text-white tracking-tight">{getLoc(item, "name")}</h3>
                         <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full font-bold">Standard Prep</span>
                       </div>
                       
@@ -428,7 +457,7 @@ export default function App() {
                 : "bg-slate-900/80 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800/50"
             }`}
           >
-            {cat.nameTR}
+            {getLoc(cat, "name")}
           </button>
         ))}
       </div>
@@ -437,7 +466,7 @@ export default function App() {
       <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-4">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-black text-white tracking-tight">
-            {categories.find(c => c.id === activeCategory)?.nameTR}
+            {getLoc(categories.find(c => c.id === activeCategory), "name")}
           </h2>
           <span className="text-xs text-slate-500 font-bold">{filteredItems.length} {t("menu.options")}</span>
         </div>
@@ -449,7 +478,7 @@ export default function App() {
             className="group bg-slate-900/50 border border-slate-800/80 rounded-3xl p-4 flex gap-4 backdrop-blur-md shadow-lg active:scale-98 transition-all duration-300 cursor-pointer hover:border-amber-500/50 hover:bg-slate-900"
           >
             <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl overflow-hidden relative shrink-0 shadow-md">
-              <img src={item.image} alt={item.nameTR} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src={item.image} alt={getLoc(item, "name")} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               {item.tags?.includes("İmza") && (
                 <span className="absolute top-2 left-2 bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow">
                   ⭐ Signature
@@ -459,8 +488,8 @@ export default function App() {
 
             <div className="flex flex-col justify-between flex-1 py-1">
               <div>
-                <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-amber-400 transition-colors leading-tight mb-1">{item.nameTR}</h3>
-                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
+                <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-amber-400 transition-colors leading-tight mb-1">{getLoc(item, "name")}</h3>
+                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{getLoc(item, "description")}</p>
               </div>
               <div className="flex justify-between items-center mt-2">
                 <span className="font-black text-amber-400 text-lg tracking-tight">{item.price} ₺</span>
@@ -489,7 +518,7 @@ export default function App() {
           <div className="bg-[#121216] border border-slate-800 w-full max-w-lg rounded-t-[2.5rem] sm:rounded-3xl overflow-hidden shadow-2xl animate-[slideUp_0.3s_cubic-bezier(0.16,1,0.3,1)] max-h-[90vh] overflow-y-auto hide-scrollbar">
             
             <div className="relative h-72 w-full">
-              <img src={selectedItem.image} alt={selectedItem.nameTR} className="w-full h-full object-cover" />
+              <img src={selectedItem.image} alt={getLoc(selectedItem, "name")} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#121216] via-transparent to-transparent"></div>
               <button 
                 onClick={() => setSelectedItem(null)}
@@ -502,13 +531,13 @@ export default function App() {
             <div className="p-6 sm:p-8 space-y-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">{selectedItem.nameTR}</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">{getLoc(selectedItem, "name")}</h2>
                   <span className="text-amber-400 font-bold text-xs uppercase tracking-widest">Özel Reçete Ürünü</span>
                 </div>
                 <span className="text-2xl sm:text-3xl font-black text-amber-400 whitespace-nowrap">{selectedItem.price} ₺</span>
               </div>
               
-              <p className="text-slate-300 text-sm leading-relaxed">{selectedItem.description}</p>
+              <p className="text-slate-300 text-sm leading-relaxed">{getLoc(selectedItem, "description")}</p>
 
               {/* Macro Grid */}
               <div className="grid grid-cols-2 gap-3">
