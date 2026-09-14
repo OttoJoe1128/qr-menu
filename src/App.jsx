@@ -40,10 +40,10 @@ export default function App() {
     let catKey = "";
     
     if (rawName.includes("kahvalti") || rawName.includes("deneyim")) catKey = "cat-kahvalti";
-    else if (rawName.includes("meze") || rawName.includes("başlangıç") || rawName.includes("baslangic")) catKey = "cat-meze";
+    else if (rawName.includes("meze") || rawName.includes("baslangic") || rawName.includes("başlangıç")) catKey = "cat-meze";
     else if (rawName.includes("ana") || rawName.includes("yemek")) catKey = "cat-ana";
-    else if (rawName.includes("yeşil") || rawName.includes("yesil") || rawName.includes("vegan")) catKey = "cat-yesil";
-    else if (rawName.includes("tatlı") || rawName.includes("tatli")) catKey = "cat-tatli";
+    else if (rawName.includes("yesil") || rawName.includes("yeşil") || rawName.includes("vegan")) catKey = "cat-yesil";
+    else if (rawName.includes("tatli") || rawName.includes("tatlı")) catKey = "cat-tatli";
     else if (obj.id && obj.id.startsWith("cat-")) catKey = obj.id;
 
     if (catKey) {
