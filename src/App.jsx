@@ -288,13 +288,13 @@ export default function App() {
               onClick={() => setAdminTab("items")}
               className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'items' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-400 hover:text-white'}`}
             >
-              🍽️ Katalog & Fiyatlar
+              🍽️ {t("admin.catalog")}
             </button>
             <button 
               onClick={() => setAdminTab("kitchen")}
               className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${adminTab === 'kitchen' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-400 hover:text-white'}`}
             >
-              👨‍🍳 Mutfak & Gramaj Reçeteleri
+              👨‍🍳 {t("admin.kitchen")}
             </button>
           </div>
 
@@ -539,7 +539,7 @@ export default function App() {
             Phuket • Fine Dining & Fusion
           </span>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">The Brook</h1>
-          <p className="text-sm text-slate-300 font-medium">Yerel Malzemelerle Harmanlanmış Eşsiz Türk Mutfağı</p>
+          <p className="text-sm text-slate-300 font-medium">{t("hero.description")}</p>
         </div>
       </div>
 
