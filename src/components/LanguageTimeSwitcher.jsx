@@ -45,6 +45,7 @@ const LanguageTimeSwitcher = () => {
   ];
 
   const languages = [
+    { id: 'tr', label: '🇹🇷 TR - Türkçe' },
     { id: 'en', label: '🇬🇧 EN - English' },
     { id: 'es', label: '🇪🇸 ES - Español' },
     { id: 'ar', label: '🇦🇪 AR - العربية' }

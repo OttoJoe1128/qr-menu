@@ -5,9 +5,35 @@
     "inspect": "Details"
   },
   "admin": {
-    "panel": "Admin Panel"
+    "panel": "Admin Panel",
+    "addNew": "Add New Item",
+    "backToMenu": "Back to Menu",
+    "catalog": "Catalog & Prices",
+    "kitchen": "Kitchen & Recipes",
+    "edit": "Edit",
+    "delete": "Delete",
+    "modal": {
+      "newTitle": "New Item & Recipe",
+      "editTitle": "Edit Item & Recipe",
+      "category": "Category",
+      "price": "Price (₺)",
+      "imageUrl": "Image URL",
+      "ingredients": "🥩 Ingredients & Grammages",
+      "steps": "👨‍🍳 Preparation Steps",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Save Update"
+    }
   },
   "menu": {
-    "options": "Options"
+    "options": "Options",
+    "specialRecipe": "Special Recipe Item",
+    "energy": "Energy Value",
+    "protein": "Protein",
+    "allergens": "⚠️ Allergen Info",
+    "addToOrder": "Add to Order"
+  },
+  "hero": {
+    "description": "Unique Turkish Cuisine Blended with Local Ingredients"
   }
 }

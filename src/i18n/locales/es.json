@@ -5,9 +5,35 @@
     "inspect": "Detalles"
   },
   "admin": {
-    "panel": "Panel de Admin"
+    "panel": "Panel de Admin",
+    "addNew": "Añadir Nuevo",
+    "backToMenu": "Volver al Menú",
+    "catalog": "Catálogo y Precios",
+    "kitchen": "Cocina y Recetas",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "modal": {
+      "newTitle": "Nuevo Artículo y Receta",
+      "editTitle": "Editar Artículo y Receta",
+      "category": "Categoría",
+      "price": "Precio (₺)",
+      "imageUrl": "URL de Imagen",
+      "ingredients": "🥩 Ingredientes y Gramajes",
+      "steps": "👨‍🍳 Pasos de Preparación",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "update": "Guardar Cambios"
+    }
   },
   "menu": {
-    "options": "Opciones"
+    "options": "Opciones",
+    "specialRecipe": "Receta Especial",
+    "energy": "Valor Energético",
+    "protein": "Proteína",
+    "allergens": "⚠️ Info de Alérgenos",
+    "addToOrder": "Añadir al Pedido"
+  },
+  "hero": {
+    "description": "Auténtica Cocina Turca con Ingredientes Locales"
   }
 }

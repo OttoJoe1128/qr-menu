@@ -1,0 +1,39 @@
+{
+  "actions": {
+    "callWaiter": "Garson Çağır",
+    "requestBill": "Hesap İste",
+    "inspect": "İncele"
+  },
+  "admin": {
+    "panel": "Yönetici Paneli",
+    "addNew": "Yeni Ürün Ekle",
+    "backToMenu": "Menüye Dön",
+    "catalog": "Katalog & Fiyatlar",
+    "kitchen": "Mutfak & Gramaj Reçeteleri",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "modal": {
+      "newTitle": "Yeni Ürün & Operasyonel Reçete",
+      "editTitle": "Ürün & Reçete Düzenle",
+      "category": "Kategori",
+      "price": "Fiyat (₺)",
+      "imageUrl": "Görsel URL",
+      "ingredients": "🥩 Mutfak Malzemeleri & Gramajlar",
+      "steps": "👨‍🍳 Hazırlık Adımları",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "update": "Güncellemeyi Kaydet"
+    }
+  },
+  "menu": {
+    "options": "Seçenek",
+    "specialRecipe": "Özel Reçete Ürünü",
+    "energy": "Enerji Değeri",
+    "protein": "Protein Oranı",
+    "allergens": "⚠️ Alerjen Bildirimi",
+    "addToOrder": "Siparişe Ekle"
+  },
+  "hero": {
+    "description": "Yerel Malzemelerle Harmanlanmış Eşsiz Türk Mutfağı"
+  }
+}
