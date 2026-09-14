@@ -3,6 +3,7 @@ import { db, ChangeSet, MenuCategory, MenuItem } from "../../../db";
 import { publishChangeSet } from "../../../admin/adminActions";
 import { AdminSession } from "../../../admin/admin.types";
 import { createKayitId, createSlug, resolveHataMesaji } from "../utils/adminUtils";
+import { supabase } from "../../../services/supabaseClient";
 
 interface Props {
   kategoriler: MenuCategory[];
@@ -22,7 +23,6 @@ export default function CategoryManager({ kategoriler, menuItems, refreshData, a
   const [hataMesaji, setHataMesaji] = useState<string | null>(null);
   const [basariMesaji, setBasariMesaji] = useState<string | null>(null);
 
-  // B2B SaaS Mimarisi: Aktif Kiracı ID'si
   const currentTenantId = "local_demo_tenant";
 
   function temizleKategoriForm() {
@@ -43,7 +43,7 @@ export default function CategoryManager({ kategoriler, menuItems, refreshData, a
       const simdi = Date.now();
       const kategori: MenuCategory = {
         id: duzenlenenKategoriId ?? createKayitId(),
-        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ BURADA VURULUYOR
+        tenantId: currentTenantId,
         nameTR,
         nameEN: kategoriAdiEN.trim() || undefined,
         slug,
@@ -56,7 +56,7 @@ export default function CategoryManager({ kategoriler, menuItems, refreshData, a
 
       const cs: ChangeSet = {
         id: createKayitId(),
-        tenantId: currentTenantId, // <-- DEĞİŞİKLİK PAKETİNE KİRACI MÜHRÜ
+        tenantId: currentTenantId,
         status: "approved",
         patches: [{ type: duzenlenenKategoriId ? "UPDATE_CATEGORY" : "ADD_CATEGORY", payload: kategori }],
         createdAt: simdi,
@@ -86,6 +86,7 @@ export default function CategoryManager({ kategoriler, menuItems, refreshData, a
     const k = kategoriler.find((k) => k.id === kategoriId);
     if (!k || !window.confirm(`"${k.nameTR}" silinecek. Emin misiniz?`)) return;
     try {
+      await supabase.from('categories').delete().eq('id', kategoriId);
       await db.categories.delete(kategoriId);
       await refreshData();
     } catch (err) { setHataMesaji(resolveHataMesaji(err)); }

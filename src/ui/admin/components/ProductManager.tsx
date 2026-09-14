@@ -3,6 +3,7 @@ import { db, ChangeSet, MenuCategory, MenuItem, Recipe, TemplateId } from "../..
 import { publishChangeSet } from "../../../admin/adminActions";
 import { AdminSession } from "../../../admin/admin.types";
 import { parseEtiketler, parseSatirlar, resolveHataMesaji } from "../utils/adminUtils";
+import { supabase } from "../../../services/supabaseClient";
 
 interface Props {
   activeTab: "urun_ekle" | "urun_liste";
@@ -32,7 +33,6 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
   const [hataMesaji, setHataMesaji] = useState<string | null>(null);
   const [basariMesaji, setBasariMesaji] = useState<string | null>(null);
 
-  // B2B SaaS: Aktif Kiracı (Tenant) Mührü
   const currentTenantId = "local_demo_tenant";
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
 
       const recipe: Recipe = {
         id: recipeId,
-        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        tenantId: currentTenantId,
         heroImage: heroImageUrl.trim(), description: aciklamaMetin.trim(),
         ingredients, steps, pairings: parseSatirlar(eslesmelerMetin),
         chefNotes: sefNotlariMetin.trim() || undefined, createdAt: simdi, updatedAt: simdi,
@@ -79,16 +79,16 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
 
       const menuItem: MenuItem = {
         id,
-        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        tenantId: currentTenantId,
         nameTR: urunAdiTR.trim(), nameEN: urunAdiEN.trim() || undefined,
         templateId: "food_detail_v1" as TemplateId, categoryId: seciliKategoriId,
         recipeId, tags: parseEtiketler(etiketlerMetin), available: isUrunMevcut,
-        createdAt: simdi, updatedAt: simdi, price: 0, // Geçici B2B varsayılanı
+        createdAt: simdi, updatedAt: simdi, price: 0,
       };
 
       const cs: ChangeSet = {
         id: globalThis.crypto.randomUUID(),
-        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        tenantId: currentTenantId,
         status: "approved",
         patches: duzenlenenMenuItemId 
           ? [{ type: "UPDATE_RECIPE", payload: recipe }, { type: "UPDATE_MENU_ITEM", payload: menuItem }]
@@ -130,7 +130,7 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
       const guncel = { ...item, available: yeniDurum, updatedAt: simdi };
       const cs: ChangeSet = {
         id: globalThis.crypto.randomUUID(),
-        tenantId: currentTenantId, // <-- KIRACI MÜHRÜ
+        tenantId: currentTenantId,
         status: "approved",
         patches: [{ type: "UPDATE_MENU_ITEM", payload: guncel }],
         createdAt: simdi, approvedAt: simdi, approvedBy: adminSession.adminId,
@@ -145,7 +145,11 @@ export default function ProductManager({ activeTab, onTabChange, menuItems, kate
     const item = menuItems.find((m) => m.id === menuItemId);
     if (!item || !window.confirm(`"${item.nameTR}" silinecek. Emin misiniz?`)) return;
     try {
-      if (item.recipeId) await db.recipes.delete(item.recipeId);
+      if (item.recipeId) {
+        await supabase.from('recipes').delete().eq('id', item.recipeId);
+        await db.recipes.delete(item.recipeId);
+      }
+      await supabase.from('menuItems').delete().eq('id', menuItemId);
       await db.menuItems.delete(menuItemId);
       await refreshData();
     } catch (err) { setHataMesaji("Silinemedi."); }
