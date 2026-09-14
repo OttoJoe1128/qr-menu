@@ -20,11 +20,11 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
-// KUSURSUZ İZOLASYONLU YERELLEŞTİRME MOTORU
+// KESİN ÇÖZÜM: STATİK SÖZLÜK ODAKLI İZOLASYONLU getLoc MOTORU
   const getLoc = (obj, key) => {
     if (!obj) return "";
     
-    // Eğer gelen nesne bir Kategori ise (id'si cat- ile başlıyorsa veya sortOrder varsa)
+    // 1. Kategori Kontrolü
     if (obj.id && obj.id.startsWith("cat-")) {
       const translatedCat = t(`categories.${obj.id}`);
       if (translatedCat && !translatedCat.startsWith("categories.")) {
@@ -33,17 +33,22 @@ export default function App() {
       return obj.nameTR || obj.name || "";
     }
 
-    // Eğer gelen nesne bir Ürün ise
-    if (obj.id && (obj.id.startsWith("m-") || obj.recipeId || obj.price !== undefined)) {
-      const translatedProd = t(`products.${obj.id}.${key}`);
-      if (translatedProd && !translatedProd.startsWith("products.")) {
-        return translatedProd;
-      }
+    // 2. Ürün Kontrolü (Index veya ID tabanlı eşleme)
+    // Listede kaçıncı sırada olduğuna veya ID'sine göre mapleyelim
+    let prodKey = "p1";
+    if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme")) || (obj.name && obj.name.includes("Spread"))) prodKey = "p2";
+    if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı")) || (obj.name && obj.name.includes("Ottoman"))) prodKey = "p3";
+
+    const translated = t(`products.${prodKey}.${key}`);
+    if (translated && !translated.startsWith("products.")) {
+      return translated;
     }
 
-    // Fallback: Doğrudan nesne içindeki veriye bak
-    return obj[key + "TR"] || obj[key] || "";
+    // 3. Fallback: Veritabanındaki aktif dil veya Türkçe veri
+    const lang = i18n.language.toUpperCase();
+    return obj[key + lang] || obj[key + "TR"] || obj[key] || "";
   };
+
 
 
   // 1. ADMIN PANELİ İÇİN: SEKME GEÇİŞİNDE SESSİZ ÇEVİRİ (SILENT WORKFLOW)
