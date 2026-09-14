@@ -27,6 +27,85 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
+
+  // 1. ADMIN PANELİ İÇİN: SEKME GEÇİŞİNDE SESSİZ ÇEVİRİ (SILENT WORKFLOW)
+  const handleTabSwitch = async (lang, isEditMode) => {
+    setActiveLangTab(lang);
+    if (lang === "TR") return;
+
+    const data = isEditMode ? editingItem : newItemData;
+    const setter = isEditMode ? setEditingItem : setNewItemData;
+    const nameTR = data.nameTR || "";
+    const descTR = data.descriptionTR || data.description || "";
+    
+    if (!data["name" + lang] && nameTR) {
+      try {
+        const translate = async (txt) => {
+          if(!txt) return "";
+          const res = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=" + lang.toLowerCase() + "&dt=t&q=" + encodeURIComponent(txt));
+          const result = await res.json();
+          return result[0].map(x => x[0]).join("");
+        };
+        
+        const [transName, transDesc] = await Promise.all([
+          translate(nameTR), translate(descTR)
+        ]);
+        
+        setter(prev => ({ ...prev, ["name"+lang]: transName, ["description"+lang]: transDesc }));
+      } catch (e) {
+        console.error("Admin Çeviri Hatası:", e);
+      }
+    }
+  };
+
+  // 2. MÜŞTERİ MENÜSÜ İÇİN: DİL DEĞİŞİMİNDE JIT GLOBAL SENKRONİZASYON
+  useEffect(() => {
+    const syncCustomerMenu = async () => {
+      const lang = i18n.language.toUpperCase();
+      if (lang === "TR") return;
+
+      let needsReload = false;
+      const translate = async (txt) => {
+        if(!txt) return "";
+        try {
+          const res = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=" + lang.toLowerCase() + "&dt=t&q=" + encodeURIComponent(txt));
+          const result = await res.json();
+          return result[0].map(x => x[0]).join("");
+        } catch(e) { return txt; }
+      };
+
+      // Ürünleri Senkronize Et
+      const allItems = await db.menuItems.toArray();
+      for (let item of allItems) {
+        if (!item["name" + lang] && item.nameTR) {
+          const transName = await translate(item.nameTR);
+          const transDesc = await translate(item.descriptionTR || item.description);
+          await db.menuItems.update(item.id, { 
+            ["name" + lang]: transName, 
+            ["description" + lang]: transDesc 
+          });
+          needsReload = true;
+        }
+      }
+
+      // Kategorileri Senkronize Et
+      const allCats = await db.categories.toArray();
+      for (let cat of allCats) {
+        if (!cat["name" + lang] && cat.nameTR) {
+          const transCatName = await translate(cat.nameTR);
+          await db.categories.update(cat.id, { ["name" + lang]: transCatName });
+          needsReload = true;
+        }
+      }
+
+      if (needsReload) {
+        loadAppData();
+      }
+    };
+
+    syncCustomerMenu();
+  }, [i18n.language]);
+
   const [newItemData, setNewItemData] = useState({
     nameTR: "",
     nameEN: "",
@@ -229,7 +308,7 @@ export default function App() {
                   {/* ÇOKLU DİL SEKMELERİ */}
                   <div className="flex gap-2 mb-4 p-1.5 bg-slate-950/50 rounded-2xl w-fit border border-slate-800 shadow-inner">
                     {["TR", "EN", "ES", "AR"].map(lang => (
-                      <button type="button" key={lang} onClick={() => setActiveLangTab(lang)} className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${activeLangTab === lang ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-500 hover:text-white"}`}>
+                      <button type="button" key={lang} onClick={() => handleTabSwitch(lang, !!editingItem)} className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${activeLangTab === lang ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-500 hover:text-white"}`}>
                         {lang === "TR" ? "🇹🇷 TR" : lang === "EN" ? "🇬🇧 EN" : lang === "ES" ? "🇪🇸 ES" : "🇦🇪 AR"}
                       </button>
                     ))}
@@ -285,7 +364,7 @@ export default function App() {
                   {/* ÇOKLU DİL SEKMELERİ */}
                   <div className="flex gap-2 mb-4 p-1.5 bg-slate-950/50 rounded-2xl w-fit border border-slate-800 shadow-inner">
                     {["TR", "EN", "ES", "AR"].map(lang => (
-                      <button type="button" key={lang} onClick={() => setActiveLangTab(lang)} className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${activeLangTab === lang ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-500 hover:text-white"}`}>
+                      <button type="button" key={lang} onClick={() => handleTabSwitch(lang, !!editingItem)} className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${activeLangTab === lang ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-500 hover:text-white"}`}>
                         {lang === "TR" ? "🇹🇷 TR" : lang === "EN" ? "🇬🇧 EN" : lang === "ES" ? "🇪🇸 ES" : "🇦🇪 AR"}
                       </button>
                     ))}
