@@ -20,25 +20,24 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
-// KUSURSUZ POLİŞLENMİŞ YERELLEŞTİRME MOTORU
+// KUSURSUZ KATEGORİ VE ÜRÜN ÇÖZÜMLEME MOTORU
   const getLoc = (obj, key) => {
     if (!obj) return "";
     
-    // Kategori Çözümleme
-    if (obj.id && obj.id.startsWith("cat-")) {
-      const translatedCat = t(`categories.${obj.id}`);
+    // 1. Kategori Çözümleme (id veya nameTR bazlı tam eşleşme)
+    if (obj.id || (key === "name" && !obj.price)) {
+      const catId = obj.id || "";
+      const translatedCat = t(`categories.${catId}`);
       if (translatedCat && !translatedCat.startsWith("categories.")) {
         return translatedCat;
       }
-      return obj.nameTR || obj.name || "";
     }
 
-    // Ürün Çözümleme (name veya description)
+    // 2. Ürün Çözümleme
     let prodKey = "p1";
     if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme")) || (obj.name && obj.name.includes("Spread"))) prodKey = "p2";
     if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı")) || (obj.name && obj.name.includes("Ottoman"))) prodKey = "p3";
 
-    // JSON'da 'desc' veya 'description' gelebilir, standartlaştıralım
     const jsonKey = key === "description" ? "description" : key;
     const translated = t(`products.${prodKey}.${jsonKey}`);
     if (translated && !translated.startsWith("products.")) {
@@ -47,6 +46,7 @@ export default function App() {
 
     return obj[key + "TR"] || obj[key] || "";
   };
+
 
 
 
