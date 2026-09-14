@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { initCore } from "./core/init";
 import { db } from "./db";
+import LanguageTimeSwitcher from "./components/LanguageTimeSwitcher";
 
 export default function App() {
   const [categories, setCategories] = useState([]);
@@ -154,6 +155,7 @@ export default function App() {
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">The Brook — Command Center</h1>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
+              <LanguageTimeSwitcher />
               <button 
                 onClick={() => setIsAddingNew(true)}
                 className="flex-1 sm:flex-none bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black px-5 py-3 rounded-2xl text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95"
@@ -386,6 +388,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-slate-100 pb-28 font-sans antialiased selection:bg-amber-500 selection:text-black">
       
+      <div className="fixed top-16 right-4 sm:top-4 sm:left-4 z-[60] scale-90 sm:scale-100 origin-top-right sm:origin-top-left">
+        <LanguageTimeSwitcher />
+      </div>
+
       {/* Admin Quick Entry Button */}
       <button 
         onClick={() => { setIsAdmin(true); window.history.replaceState({}, '', '?admin=true'); }}
