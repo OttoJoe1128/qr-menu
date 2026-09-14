@@ -7,24 +7,18 @@ import LanguageTimeSwitcher from "./components/LanguageTimeSwitcher";
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // AKILLI YERELLEŞTİRME MOTORU (FALLBACK & DYNAMIC RESOLVER)
+  // STATİK & GÜVENLİ İ18N ÜRÜN ÇEVİRİ MOTORU
   const getLoc = (obj, key) => {
     if (!obj) return "";
-    const lang = i18n.language.toLowerCase(); // tr, en, es, ar
-    const upperLang = lang.toUpperCase(); // TR, EN, ES, AR
-    
-    // 1. Doğrudan veritabanında ilgili dil var mı? (örn: nameEN, nameES)
-    if (obj[key + upperLang]) {
-      return obj[key + upperLang];
+    // Ürün ID veya adına göre statik i18n anahtarı eşlemesi
+    let prodKey = "p1";
+    if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme"))) prodKey = "p2";
+    if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı"))) prodKey = "p3";
+
+    const translated = t(`products.${prodKey}.${key}`);
+    if (translated && !translated.startsWith("products.")) {
+      return translated;
     }
-    
-    // 2. Eğer hedef dil İngilizce/İspanyolca/Arapça ise ve spesifik alan boşsa, 
-    // alternatif alanlara veya doğrudan Türkçe ana veriye bakıp fallback sağla
-    if (lang !== 'tr') {
-      if (obj[key + "EN"]) return obj[key + "EN"];
-    }
-    
-    // 3. Hiçbiri yoksa orijinal Türkçe veriyi döndür
     return obj[key + "TR"] || obj[key] || "";
   };
   const [categories, setCategories] = useState([]);
@@ -643,7 +637,7 @@ export default function App() {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">{getLoc(selectedItem, "name")}</h2>
-                  <span className="text-amber-400 font-bold text-xs uppercase tracking-widest">Özel Reçete Ürünü</span>
+                  <span className="text-amber-400 font-bold text-xs uppercase tracking-widest">{t("menu.specialRecipe")}</span>
                 </div>
                 <span className="text-2xl sm:text-3xl font-black text-amber-400 whitespace-nowrap">{selectedItem.price} ₺</span>
               </div>

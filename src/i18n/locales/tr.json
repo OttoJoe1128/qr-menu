@@ -35,5 +35,19 @@
   },
   "hero": {
     "description": "Yerel Malzemelerle Harmanlanmış Eşsiz Türk Mutfağı"
+  },
+  "products": {
+    "p1": {
+      "name": "Çılgır (Turkish Poached Eggs)",
+      "desc": "Sarımsaklı yoğurt üzerinde poşe yumurta ve acı biberli tereyağı sosu."
+    },
+    "p2": {
+      "name": "Serpme Kahvaltı",
+      "desc": "2 Kişilik Paylaşımlı Deneyim. Peynir tabağı, söğüş, zeytin, bal & kaymak, menemen, sigara böreği ve ızgara sucuk."
+    },
+    "p3": {
+      "name": "Osmanlı Kahvaltı Tabağı",
+      "desc": "Özenle seçilmiş yöresel peynirler, yumurta, zeytin çeşitleri ve ev yapımı reçeller."
+    }
   }
 }
