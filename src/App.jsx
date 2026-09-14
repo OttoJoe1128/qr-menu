@@ -33,30 +33,39 @@ export default function App() {
   };
 
   const getLoc = (obj, key) => {
-    if (!obj) return "";
+  if (!obj) return "";
+
+  if (key === "name" && !obj.price) {
+    const rawName = (obj.nameTR || obj.name || "").toLowerCase();
+    let catKey = "";
     
-    // 1. Kategori Çözümleme (id veya nameTR bazlı tam eşleşme)
-    if (obj.id || (key === "name" && !obj.price)) {
-      const catId = obj.id || "";
-      const translatedCat = t(`categories.${catId}`);
+    if (rawName.includes("kahvalti") || rawName.includes("deneyim")) catKey = "cat-kahvalti";
+    else if (rawName.includes("meze") || rawName.includes("başlangıç") || rawName.includes("baslangic")) catKey = "cat-meze";
+    else if (rawName.includes("ana") || rawName.includes("yemek")) catKey = "cat-ana";
+    else if (rawName.includes("yeşil") || rawName.includes("yesil") || rawName.includes("vegan")) catKey = "cat-yesil";
+    else if (rawName.includes("tatlı") || rawName.includes("tatli")) catKey = "cat-tatli";
+    else if (obj.id && obj.id.startsWith("cat-")) catKey = obj.id;
+
+    if (catKey) {
+      const translatedCat = t("categories." + catKey);
       if (translatedCat && !translatedCat.startsWith("categories.")) {
         return translatedCat;
       }
     }
+  }
 
-    // 2. Ürün Çözümleme
-    let prodKey = "p1";
-    if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme")) || (obj.name && obj.name.includes("Spread"))) prodKey = "p2";
-    if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı")) || (obj.name && obj.name.includes("Ottoman"))) prodKey = "p3";
+  let prodKey = "p1";
+  if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme")) || (obj.name && obj.name.includes("Spread"))) prodKey = "p2";
+  if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı")) || (obj.name && obj.name.includes("Ottoman"))) prodKey = "p3";
 
-    const jsonKey = key === "description" ? "description" : key;
-    const translated = t(`products.${prodKey}.${jsonKey}`);
-    if (translated && !translated.startsWith("products.")) {
-      return translated;
-    }
+  const jsonKey = key === "description" ? "description" : key;
+  const translated = t("products." + prodKey + "." + jsonKey);
+  if (translated && !translated.startsWith("products.")) {
+    return translated;
+  }
 
-    return obj[key + "TR"] || obj[key] || "";
-  };
+  return obj[key + "TR"] || obj[key] || "";
+};
 
 
 
