@@ -46,15 +46,15 @@
   "products": {
     "p1": {
       "name": "Turkish Poached Eggs (Çılbır)",
-      "desc": "Poached eggs over garlic yogurt with spicy chili butter sauce."
+      "description": "Poached eggs over garlic yogurt with spicy chili butter sauce."
     },
     "p2": {
       "name": "Spread Breakfast",
-      "desc": "Shared experience for 2. Cheese platter, fresh veggies, olives, honey & clotted cream, menemen, spring rolls and grilled sucuk."
+      "description": "Shared experience for 2. Cheese platter, fresh veggies, olives, honey & clotted cream, menemen, spring rolls and grilled sucuk."
     },
     "p3": {
       "name": "Ottoman Breakfast Plate",
-      "desc": "Carefully selected local cheeses, eggs, assorted olives and homemade jams."
+      "description": "Carefully selected local cheeses, eggs, assorted olives and homemade jams."
     }
   }
 }

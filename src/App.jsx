@@ -20,7 +20,7 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
-// KUSURSUZ STATİK İ18N YERELLEŞTİRME MOTORU
+// KUSURSUZ POLİŞLENMİŞ YERELLEŞTİRME MOTORU
   const getLoc = (obj, key) => {
     if (!obj) return "";
     
@@ -33,18 +33,21 @@ export default function App() {
       return obj.nameTR || obj.name || "";
     }
 
-    // Ürün Çözümleme
+    // Ürün Çözümleme (name veya description)
     let prodKey = "p1";
     if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme")) || (obj.name && obj.name.includes("Spread"))) prodKey = "p2";
     if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı")) || (obj.name && obj.name.includes("Ottoman"))) prodKey = "p3";
 
-    const translated = t(`products.${prodKey}.${key}`);
+    // JSON'da 'desc' veya 'description' gelebilir, standartlaştıralım
+    const jsonKey = key === "description" ? "description" : key;
+    const translated = t(`products.${prodKey}.${jsonKey}`);
     if (translated && !translated.startsWith("products.")) {
       return translated;
     }
 
     return obj[key + "TR"] || obj[key] || "";
   };
+
 
 
 

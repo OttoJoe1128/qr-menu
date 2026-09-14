@@ -46,15 +46,15 @@
   "products": {
     "p1": {
       "name": "Huevos Escalfados Turcos (Çılbır)",
-      "desc": "Huevos escalfados sobre yogur de ajo con salsa de mantequilla de picante."
+      "description": "Huevos escalfados sobre yogur de ajo con salsa de mantequilla de picante."
     },
     "p2": {
       "name": "Desayuno Completo",
-      "desc": "Experiencia compartida para 2. Tabla de quesos, verduras, aceitunas, miel y nata, menemen, rollitos y sucuk a la parrilla."
+      "description": "Experiencia compartida para 2. Tabla de quesos, verduras, aceitunas, miel y nata, menemen, rollitos y sucuk a la parrilla."
     },
     "p3": {
       "name": "Plato de Desayuno Otomano",
-      "desc": "Quesos locales seleccionados, huevos, aceitunas surtidas y mermeladas caseras."
+      "description": "Quesos locales seleccionados, huevos, aceitunas surtidas y mermeladas caseras."
     }
   }
 }
