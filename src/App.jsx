@@ -7,21 +7,7 @@ import LanguageTimeSwitcher from "./components/LanguageTimeSwitcher";
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // STATİK & GÜVENLİ İ18N ÜRÜN ÇEVİRİ MOTORU
-  const getLoc = (obj, key) => {
-    if (!obj) return "";
-    // Ürün ID veya adına göre statik i18n anahtarı eşlemesi
-    let prodKey = "p1";
-    if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme"))) prodKey = "p2";
-    if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı"))) prodKey = "p3";
-
-    const translated = t(`products.${prodKey}.${key}`);
-    if (translated && !translated.startsWith("products.")) {
-      return translated;
-    }
-    return obj[key + "TR"] || obj[key] || "";
-  };
-  const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [activeCategory, setActiveCategory] = useState("cat-kahvalti");
@@ -34,6 +20,31 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
+// KUSURSUZ İZOLASYONLU YERELLEŞTİRME MOTORU
+  const getLoc = (obj, key) => {
+    if (!obj) return "";
+    
+    // Eğer gelen nesne bir Kategori ise (id'si cat- ile başlıyorsa veya sortOrder varsa)
+    if (obj.id && obj.id.startsWith("cat-")) {
+      const translatedCat = t(`categories.${obj.id}`);
+      if (translatedCat && !translatedCat.startsWith("categories.")) {
+        return translatedCat;
+      }
+      return obj.nameTR || obj.name || "";
+    }
+
+    // Eğer gelen nesne bir Ürün ise
+    if (obj.id && (obj.id.startsWith("m-") || obj.recipeId || obj.price !== undefined)) {
+      const translatedProd = t(`products.${obj.id}.${key}`);
+      if (translatedProd && !translatedProd.startsWith("products.")) {
+        return translatedProd;
+      }
+    }
+
+    // Fallback: Doğrudan nesne içindeki veriye bak
+    return obj[key + "TR"] || obj[key] || "";
+  };
+
 
   // 1. ADMIN PANELİ İÇİN: SEKME GEÇİŞİNDE SESSİZ ÇEVİRİ (SILENT WORKFLOW)
   const handleTabSwitch = async (lang, isEditMode) => {

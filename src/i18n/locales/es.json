@@ -36,16 +36,23 @@
   "hero": {
     "description": "Auténtica Cocina Turca con Ingredientes Locales"
   },
+  "categories": {
+    "cat-kahvalti": "Experiencia de Desayuno",
+    "cat-meze": "Aperitivos y Entrantes",
+    "cat-ana": "Platos Principales",
+    "cat-yesil": "Menú Verde",
+    "cat-tatli": "Postres"
+  },
   "products": {
-    "p1": {
+    "m-1": {
       "name": "Huevos Escalfados Turcos (Çılbır)",
       "desc": "Huevos escalfados sobre yogur de ajo con salsa de mantequilla de picante."
     },
-    "p2": {
+    "m-2": {
       "name": "Desayuno Completo",
       "desc": "Experiencia compartida para 2. Tabla de quesos, verduras, aceitunas, miel y nata, menemen, rollitos y sucuk a la parrilla."
     },
-    "p3": {
+    "m-3": {
       "name": "Plato de Desayuno Otomano",
       "desc": "Quesos locales seleccionados, huevos, aceitunas surtidas y mermeladas caseras."
     }

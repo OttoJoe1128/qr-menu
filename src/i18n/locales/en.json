@@ -36,16 +36,23 @@
   "hero": {
     "description": "Unique Turkish Cuisine Blended with Local Ingredients"
   },
+  "categories": {
+    "cat-kahvalti": "Breakfast Experience",
+    "cat-meze": "Meze & Starters",
+    "cat-ana": "Main Courses",
+    "cat-yesil": "Green Menu",
+    "cat-tatli": "Desserts"
+  },
   "products": {
-    "p1": {
+    "m-1": {
       "name": "Turkish Poached Eggs (Çılbır)",
       "desc": "Poached eggs over garlic yogurt with spicy chili butter sauce."
     },
-    "p2": {
+    "m-2": {
       "name": "Spread Breakfast",
       "desc": "Shared experience for 2. Cheese platter, fresh veggies, olives, honey & clotted cream, menemen, spring rolls and grilled sucuk."
     },
-    "p3": {
+    "m-3": {
       "name": "Ottoman Breakfast Plate",
       "desc": "Carefully selected local cheeses, eggs, assorted olives and homemade jams."
     }
