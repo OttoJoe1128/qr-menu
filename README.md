@@ -1,39 +1,34 @@
-# 📱 QR Menu - Digital Menu & Operations Management System
+# 🚀 The Brook — B2B SaaS Restaurant & Kitchen Management System
 
-> A scalable, end-to-end QR-based menu and operations management system designed to streamline restaurant and cafe workflows.
+> **Modern Digital QR Menu, Inventory, & Multi-Role SaaS Platform**  
+> Designed for high-end hospitality businesses looking to transition into seamless digital operations.
 
-## 🚀 Overview
-QR Menu is a modern SaaS-style application that allows businesses to digitize their menus and manage daily operations seamlessly. Built with performance and user experience in mind, it provides lightning-fast load times and a highly responsive interface for end-users, while offering powerful management tools for business owners.
+---
 
-## 💻 Tech Stack
-*   **Frontend:** React, Vite (for optimized build and instant server start)
-*   **Environment:** UserLAnd (Android) for edge deployment/testing
-*   **Version Control & CI/CD:** GitLab, Automated pipelines
-*   **Deployment:** SSH-based automated remote server deployments
+## 💎 Project Overview
+**The Brook** is a production-ready, high-performance B2B SaaS application tailored for modern restaurants. It bridges the gap between customer-facing digital menus and back-of-house kitchen operations. Built with a heavy focus on speed, offline resilience (IndexedDB), and stunning UI/UX design.
 
-## ✨ Key Features
-*   **Instant QR Access:** Customers can scan and view the digital menu instantly without downloading any app.
-*   **Real-Time Operations:** Dynamic updates to menu items, pricing, and availability.
-*   **Optimized Performance:** Powered by Vite + React for a smooth, app-like mobile experience in the browser.
-*   **Continuous Integration:** Automated build and deployment pipelines ensure zero-downtime updates.
+### ✨ Key Features
+*   📱 **Immersive Customer Experience (Mobile-First):** Luxury glassmorphism design, smooth bottom-sheet modals, macro-nutrient calculations (Calories & Protein), and dynamic allergen warnings.
+*   ⚙️ **Enterprise Admin Dashboard:** Real-time catalog management, category filtering, instant pricing controls, and dynamic image URL injection.
+*   👨‍🍳 **Kitchen Operations Terminal (BOH):** Dedicated chef management view providing precise portion grammages, ingredient lists, and step-by-step station preparation flows.
+*   🔄 **Advanced Data Integrity:** Built on top of a robust local-first database architecture using Dexie.js and versioned ChangeSet/Snapshot workflows.
 
-## ⚙️ CI/CD Pipeline & Architecture
-This project utilizes a modern DevOps approach to ensure rapid and reliable feature releases:
-1.  **Code Commit:** Pushing changes to the GitLab repository triggers the CI/CD pipeline.
-2.  **Build Phase:** Vite compiles and minifies the React application for optimal production performance.
-3.  **Deployment:** Using automated GitLab CI runners, the build artifacts are securely transferred via SSH and deployed to the production environment.
+---
 
-## 🛠️ Getting Started (Local Development)
+## 🛠️ Tech Stack & Architecture
+*   **Frontend:** React, Vite, Tailwind CSS v4 (Modern Glassmorphism UI)
+*   **State & Local Storage:** Dexie.js (IndexedDB wrapper for offline-first capabilities)
+*   **CI/CD & Hosting:** Automated deployment pipeline powered by GitHub & Vercel
+*   **Architecture Pattern:** ChangeSet-based versioning and transactional data seeding
 
-```bash
-# Clone the repository
-git clone [https://gitlab.com/OttoJoe1128/qr-menu.git](https://gitlab.com/OttoJoe1128/qr-menu.git)
+---
 
-# Navigate to the project directory
-cd qr-menu
+## 🌐 Live Demo & Access
+*   **Live Production App:** [https://qr-menu-bice-one.vercel.app](https://qr-menu-bice-one.vercel.app)
+*   **Admin / Kitchen Mode:** Append `?admin=true` to the live URL or click the settings badge in the application header.
 
-# Install dependencies
-npm install
+---
 
-# Start the development server
-npm run dev
+## 💡 Built for Digital Nomad & Freelance Excellence
+Developed as part of a high-end freelance engineering portfolio, demonstrating full-stack capabilities, modern UI design systems, and enterprise-grade state management.
