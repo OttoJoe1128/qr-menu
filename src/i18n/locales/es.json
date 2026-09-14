@@ -1,0 +1,10 @@
+{
+  "header": {
+    "title": "Nuestro Menú",
+    "settings": "Ajustes"
+  },
+  "menu": {
+    "categories": "Categorías",
+    "search": "Buscar artículos..."
+  }
+}

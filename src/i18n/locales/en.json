@@ -1,0 +1,10 @@
+{
+  "header": {
+    "title": "Our Menu",
+    "settings": "Settings"
+  },
+  "menu": {
+    "categories": "Categories",
+    "search": "Search items..."
+  }
+}
