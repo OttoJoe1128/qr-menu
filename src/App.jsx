@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { initCore } from "./core/init";
 import { db } from "./db";
+import { useTranslation } from "react-i18next";
 import LanguageTimeSwitcher from "./components/LanguageTimeSwitcher";
 
 export default function App() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [recipes, setRecipes] = useState([]);
@@ -397,7 +399,7 @@ export default function App() {
         onClick={() => { setIsAdmin(true); window.history.replaceState({}, '', '?admin=true'); }}
         className="fixed top-4 right-4 z-50 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-xs font-black px-4 py-2.5 rounded-full backdrop-blur-xl shadow-2xl transition-all border border-slate-700/80 flex items-center gap-2 active:scale-95"
       >
-        <span>⚙️</span> Yönetici Paneli
+        <span>⚙️</span> {t("admin.panel")}
       </button>
 
       {/* HEADER & HERO */}
@@ -437,7 +439,7 @@ export default function App() {
           <h2 className="text-xl font-black text-white tracking-tight">
             {categories.find(c => c.id === activeCategory)?.nameTR}
           </h2>
-          <span className="text-xs text-slate-500 font-bold">{filteredItems.length} Seçenek</span>
+          <span className="text-xs text-slate-500 font-bold">{filteredItems.length} {t("menu.options")}</span>
         </div>
 
         {filteredItems.map((item) => (
@@ -463,7 +465,7 @@ export default function App() {
               <div className="flex justify-between items-center mt-2">
                 <span className="font-black text-amber-400 text-lg tracking-tight">{item.price} ₺</span>
                 <span className="text-[11px] bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 text-slate-300 font-bold px-3 py-1.5 rounded-xl transition-all">
-                  İncele →
+                  {t("actions.inspect")} →
                 </span>
               </div>
             </div>
@@ -474,10 +476,10 @@ export default function App() {
       {/* BOTTOM ACTION BAR */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#0a0a0c]/90 backdrop-blur-2xl border-t border-slate-900 p-4 flex justify-between items-center z-40 max-w-2xl mx-auto">
         <button className="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 font-black py-3.5 px-4 rounded-2xl mr-2 text-xs sm:text-sm transition-all shadow-md">
-          🔔 Garson Çağır
+          🔔 {t("actions.callWaiter")}
         </button>
         <button className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-3.5 px-4 rounded-2xl ml-2 text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20">
-          Hesap İste
+          {t("actions.requestBill")}
         </button>
       </div>
 

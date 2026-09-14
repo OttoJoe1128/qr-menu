@@ -1,10 +1,13 @@
 {
-  "header": {
-    "title": "Our Menu",
-    "settings": "Settings"
+  "actions": {
+    "callWaiter": "Call Waiter",
+    "requestBill": "Request Bill",
+    "inspect": "Details"
+  },
+  "admin": {
+    "panel": "Admin Panel"
   },
   "menu": {
-    "categories": "Categories",
-    "search": "Search items..."
+    "options": "Options"
   }
 }

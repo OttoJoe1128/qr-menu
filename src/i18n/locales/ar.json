@@ -1,10 +1,13 @@
 {
-  "header": {
-    "title": "قائمتنا",
-    "settings": "إعدادات"
+  "actions": {
+    "callWaiter": "استدعاء النادل",
+    "requestBill": "طلب الفاتورة",
+    "inspect": "تفاصيل"
+  },
+  "admin": {
+    "panel": "لوحة الإدارة"
   },
   "menu": {
-    "categories": "فئات",
-    "search": "البحث عن العناصر..."
+    "options": "خيارات"
   }
 }

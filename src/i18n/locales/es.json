@@ -1,10 +1,13 @@
 {
-  "header": {
-    "title": "Nuestro Menú",
-    "settings": "Ajustes"
+  "actions": {
+    "callWaiter": "Llamar al Camarero",
+    "requestBill": "Pedir la Cuenta",
+    "inspect": "Detalles"
+  },
+  "admin": {
+    "panel": "Panel de Admin"
   },
   "menu": {
-    "categories": "Categorías",
-    "search": "Buscar artículos..."
+    "options": "Opciones"
   }
 }
