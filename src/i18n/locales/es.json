@@ -44,15 +44,15 @@
     "cat-tatli": "Postres"
   },
   "products": {
-    "m-1": {
+    "p1": {
       "name": "Huevos Escalfados Turcos (Çılbır)",
       "desc": "Huevos escalfados sobre yogur de ajo con salsa de mantequilla de picante."
     },
-    "m-2": {
+    "p2": {
       "name": "Desayuno Completo",
       "desc": "Experiencia compartida para 2. Tabla de quesos, verduras, aceitunas, miel y nata, menemen, rollitos y sucuk a la parrilla."
     },
-    "m-3": {
+    "p3": {
       "name": "Plato de Desayuno Otomano",
       "desc": "Quesos locales seleccionados, huevos, aceitunas surtidas y mermeladas caseras."
     }

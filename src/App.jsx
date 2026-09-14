@@ -20,11 +20,11 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState("TR");
-// KESİN ÇÖZÜM: STATİK SÖZLÜK ODAKLI İZOLASYONLU getLoc MOTORU
+// KUSURSUZ STATİK İ18N YERELLEŞTİRME MOTORU
   const getLoc = (obj, key) => {
     if (!obj) return "";
     
-    // 1. Kategori Kontrolü
+    // Kategori Çözümleme
     if (obj.id && obj.id.startsWith("cat-")) {
       const translatedCat = t(`categories.${obj.id}`);
       if (translatedCat && !translatedCat.startsWith("categories.")) {
@@ -33,8 +33,7 @@ export default function App() {
       return obj.nameTR || obj.name || "";
     }
 
-    // 2. Ürün Kontrolü (Index veya ID tabanlı eşleme)
-    // Listede kaçıncı sırada olduğuna veya ID'sine göre mapleyelim
+    // Ürün Çözümleme
     let prodKey = "p1";
     if (obj.id === "m-2" || (obj.nameTR && obj.nameTR.includes("Serpme")) || (obj.name && obj.name.includes("Spread"))) prodKey = "p2";
     if (obj.id === "m-3" || (obj.nameTR && obj.nameTR.includes("Osmanlı")) || (obj.name && obj.name.includes("Ottoman"))) prodKey = "p3";
@@ -44,10 +43,9 @@ export default function App() {
       return translated;
     }
 
-    // 3. Fallback: Veritabanındaki aktif dil veya Türkçe veri
-    const lang = i18n.language.toUpperCase();
-    return obj[key + lang] || obj[key + "TR"] || obj[key] || "";
+    return obj[key + "TR"] || obj[key] || "";
   };
+
 
 
 
@@ -663,11 +661,11 @@ export default function App() {
               {/* Macro Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl text-center shadow-inner">
-                  <span className="block text-[10px] text-amber-400 font-black uppercase tracking-wider mb-1">Enerji Değeri</span>
+                  <span className="block text-[10px] text-amber-400 font-black uppercase tracking-wider mb-1">{t("menu.energy")}</span>
                   <span className="block text-xl font-black text-white">{selectedItem.calories || "-"} <span className="text-xs text-slate-400">kcal</span></span>
                 </div>
                 <div className="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl text-center shadow-inner">
-                  <span className="block text-[10px] text-blue-400 font-black uppercase tracking-wider mb-1">Protein Oranı</span>
+                  <span className="block text-[10px] text-blue-400 font-black uppercase tracking-wider mb-1">{t("menu.protein")}</span>
                   <span className="block text-xl font-black text-white">{selectedItem.protein || "-"}</span>
                 </div>
               </div>
@@ -675,7 +673,7 @@ export default function App() {
               {/* Allergens */}
               {selectedItem.allergens && selectedItem.allergens.length > 0 && (
                 <div>
-                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">⚠️ Alerjen Bildirimi</span>
+                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">{t("menu.allergens")}</span>
                   <div className="flex flex-wrap gap-2">
                     {selectedItem.allergens.map(alerjen => (
                       <span key={alerjen} className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold px-3.5 py-1.5 rounded-xl">
@@ -687,7 +685,7 @@ export default function App() {
               )}
 
               <button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-4 rounded-2xl shadow-xl shadow-amber-500/20 active:scale-98 transition-all text-base">
-                Siparişe Ekle — {selectedItem.price} ₺
+                {t("menu.addToOrder")} — {selectedItem.price} ₺
               </button>
             </div>
           </div>

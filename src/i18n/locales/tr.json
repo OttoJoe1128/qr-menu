@@ -44,15 +44,15 @@
     "cat-tatli": "Tatlılar"
   },
   "products": {
-    "m-1": {
+    "p1": {
       "name": "Çılgır (Turkish Poached Eggs)",
       "desc": "Sarımsaklı yoğurt üzerinde poşe yumurta ve acı biberli tereyağı sosu."
     },
-    "m-2": {
+    "p2": {
       "name": "Serpme Kahvaltı",
       "desc": "2 Kişilik Paylaşımlı Deneyim. Peynir tabağı, söğüş, zeytin, bal & kaymak, menemen, sigara böreği ve ızgara sucuk."
     },
-    "m-3": {
+    "p3": {
       "name": "Osmanlı Kahvaltı Tabağı",
       "desc": "Özenle seçilmiş yöresel peynirler, yumurta, zeytin çeşitleri ve ev yapımı reçeller."
     }
