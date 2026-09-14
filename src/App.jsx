@@ -7,12 +7,25 @@ import LanguageTimeSwitcher from "./components/LanguageTimeSwitcher";
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // DİNAMİK VERİTABANI YERELLEŞTİRME MOTORU (FALLBACK DESTEKLİ)
+  // AKILLI YERELLEŞTİRME MOTORU (FALLBACK & DYNAMIC RESOLVER)
   const getLoc = (obj, key) => {
     if (!obj) return "";
-    const lang = i18n.language.toUpperCase();
-    // Önce seçili dili, yoksa İngilizceyi, yoksa Türkçeyi, o da yoksa varsayılanı getir
-    return obj[key + lang] || obj[key + "EN"] || obj[key + "TR"] || obj[key] || "";
+    const lang = i18n.language.toLowerCase(); // tr, en, es, ar
+    const upperLang = lang.toUpperCase(); // TR, EN, ES, AR
+    
+    // 1. Doğrudan veritabanında ilgili dil var mı? (örn: nameEN, nameES)
+    if (obj[key + upperLang]) {
+      return obj[key + upperLang];
+    }
+    
+    // 2. Eğer hedef dil İngilizce/İspanyolca/Arapça ise ve spesifik alan boşsa, 
+    // alternatif alanlara veya doğrudan Türkçe ana veriye bakıp fallback sağla
+    if (lang !== 'tr') {
+      if (obj[key + "EN"]) return obj[key + "EN"];
+    }
+    
+    // 3. Hiçbiri yoksa orijinal Türkçe veriyi döndür
+    return obj[key + "TR"] || obj[key] || "";
   };
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
